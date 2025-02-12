@@ -1,0 +1,22 @@
+.ticket {
+    width: 300px; /* Ajusta el ancho según tus necesidades */
+    margin: 20px auto;
+    border: 1px dashed #ccc;
+    padding: 20px;
+  }
+  .logo {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .logo img {
+    max-width: 150px;
+  }
+  .details {
+    margin-bottom: 20px;
+  }
+  .barcode {
+    text-align: center;
+  }
+  .barcode img {
+    max-width: 200px;
+  }
