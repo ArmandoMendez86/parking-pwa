@@ -461,6 +461,7 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
     const diferenciaMilisegundos =
       fechaActual.getTime() - fechaInicio.getTime();
     let minutosTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60));
+
     document.querySelector("#negocio").textContent = "AUTOCARS";
     document.querySelector("#logoEstacionamiento").src = `${logoImg}`;
     document.querySelector("#fechaEntrada").textContent = existe.fechaLocal;
@@ -502,6 +503,7 @@ document
     const registros = await obtenerRegistrosEstacionamiento();
 
     const fechaActual = new Date();
+
     const mesActual = fechaActual
       .toLocaleString("default", { month: "short" })
       .toUpperCase();
@@ -518,7 +520,6 @@ document
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-      hour12: true,
     });
 
     if (existe.length > 0) {
@@ -535,16 +536,30 @@ document
       const [horasInicio, minutosInicio] = existe.horaLocal
         .split(":")
         .map(Number);
-      const fechaInicio = new Date();
-      fechaInicio.setHours(horasInicio);
-      fechaInicio.setMinutes(minutosInicio);
-      fechaInicio.setSeconds(0);
 
+      // Crear fecha de inicio con la misma fecha de hoy
+      const fechaInicio = new Date();
+      fechaInicio.setHours(horasInicio, minutosInicio, 0, 0); // Establecer solo la hora, minuto, segundos y milisegundos
+
+      // Crear fecha actual con la misma fecha de hoy
+      fechaActual.setSeconds(0);
+      fechaActual.setMilliseconds(0);
+
+      // Comprobar las fechas antes de calcular la diferencia
+      console.log("Fecha de inicio:", fechaInicio);
+      console.log("Fecha actual:", fechaActual);
+
+      // Calcular la diferencia en milisegundos
       const diferenciaMilisegundos =
         fechaActual.getTime() - fechaInicio.getTime();
+      console.log("Diferencia en milisegundos:", diferenciaMilisegundos);
+
+      // Calcular los minutos transcurridos
       let minutosTranscurridos = Math.floor(
         diferenciaMilisegundos / (1000 * 60)
       );
+      console.log("Minutos transcurridos:", minutosTranscurridos);
+
       document.querySelector("#negocio-dos").textContent = "AUTOCARS";
       document.querySelector("#logoEstacionamiento-dos").src = `${logoImg}`;
       document.querySelector("#fechaEntrada-dos").textContent =

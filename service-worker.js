@@ -1,12 +1,12 @@
 const CACHE_NAME = "pwa-cache-v1";
 const ASSETS = [
-  "/pwa", 
-  "index.html", 
-  "css/styles.css", 
-  "js/app.js", 
-  "js/logo.js", 
+  "/parking-pwa",
+  "index.html",
+  "css/styles.css",
+  "js/app.js",
+  "js/logo.js",
   "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css",
-  "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js",
+  "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
 ];
 
 // Instalación del Service Worker
