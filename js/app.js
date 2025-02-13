@@ -1,6 +1,12 @@
 import { logoImg } from "./logo.js";
 let db;
 const estado = "pendiente";
+const tooltipTriggerList = document.querySelectorAll(
+  '[data-bs-toggle="tooltip"]'
+);
+const tooltipList = [...tooltipTriggerList].map(
+  (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+);
 
 // Abrir o crear la base de datos
 const request = indexedDB.open("Parking", 4);
@@ -72,20 +78,7 @@ function configurarFormularios() {
     .addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      let fecha = new Date();
-
-      let fechaLocal = fecha.toLocaleDateString("es-MX", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-
-      let horaLocal = fecha.toLocaleTimeString("es-MX", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      });
+      let fechaEntrada = moment().format("YYYY-MM-DD HH:mm:ss");
 
       const placa = document.getElementById("placaE").value;
       const categoria = document.getElementById("categoria").value;
@@ -98,8 +91,7 @@ function configurarFormularios() {
         categoria,
         marca,
         color,
-        fechaLocal,
-        horaLocal,
+        fechaEntrada,
         estado,
         folio,
       });
@@ -244,6 +236,22 @@ function agregarRegistro(storeName, data) {
   request.onerror = (event) => {
     console.error("Error al agregar el registro:", event.target.error);
     alert("Error al guardar el registro");
+  };
+}
+// Función para eliminar un registro a IndexedDB
+function eliminarRegistro(storeName, data) {
+  const transaction = db.transaction(storeName, "readwrite");
+  const store = transaction.objectStore(storeName);
+  const request = store.delete(data);
+
+  request.onsuccess = () => {
+    console.log("Registro eliminado con éxito");
+
+    alert("Registro eliminado correctamente");
+  };
+  request.onerror = (event) => {
+    console.error("Error al eliminar el registro:", event.target.error);
+    alert("Error al eliminar el registro");
   };
 }
 
@@ -421,23 +429,15 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
   const folio = this.value.trim();
   const registros = await obtenerRegistrosEstacionamiento();
 
-  const fechaActual = new Date();
-  const mesActual = fechaActual
-    .toLocaleString("default", { month: "short" })
-    .toUpperCase();
+  const fechaActual = moment();
+
+  const mesActual = fechaActual.format("MMM").toUpperCase();
 
   const foliosMesActual = registros.filter((folio) => {
     return folio && folio.folio && folio.folio.startsWith(mesActual);
   });
 
   const existe = foliosMesActual.filter((registro) => registro.folio == folio);
-
-  let horaSalida = fechaActual.toLocaleTimeString("es-MX", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
 
   if (existe.length > 0) {
     const [existe] = foliosMesActual.filter(
@@ -448,30 +448,27 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
       (categoria) => categoria.id == existe.categoria
     );
 
-    const monto = calcularCostoTotal(existe.horaLocal, isCategoria);
+    const monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
+    const fechaInicio = moment(existe.fechaEntrada);
 
-    const [horasInicio, minutosInicio] = existe.horaLocal
-      .split(":")
-      .map(Number);
-    const fechaInicio = new Date();
-    fechaInicio.setHours(horasInicio);
-    fechaInicio.setMinutes(minutosInicio);
-    fechaInicio.setSeconds(0);
+    const minutosTranscurridos = moment
+      .duration(fechaActual.diff(fechaInicio))
+      .asMinutes();
 
-    const diferenciaMilisegundos =
-      fechaActual.getTime() - fechaInicio.getTime();
-    let minutosTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60));
+    const redondearMinutos = Math.ceil(minutosTranscurridos);
 
     document.querySelector("#negocio").textContent = "AUTOCARS";
     document.querySelector("#logoEstacionamiento").src = `${logoImg}`;
     document.querySelector("#fechaEntrada").textContent = existe.fechaLocal;
     document.querySelector(
       "#horaEntrada"
-    ).textContent = `Entrada: ${existe.horaLocal}`;
-    document.querySelector("#horaSalida").textContent = `Salida: ${horaSalida}`;
+    ).textContent = `Entrada: ${fechaInicio.format("hh:mm A")}`;
     document.querySelector(
-      "#tiempo"
-    ).textContent = `Tiempo: ${minutosTranscurridos} minutos`;
+      "#horaSalida"
+    ).textContent = `Salida: ${fechaActual.format("hh:mm A")}`;
+    document.querySelector("#tiempo").textContent = `Tiempo: ${Math.ceil(
+      minutosTranscurridos
+    )} minutos`;
     document.querySelector("#total").textContent = `Monto: $${monto}`;
     document.querySelector(".ticket").classList.remove("d-none");
     JsBarcode(document.querySelector("#codigoBarras"), existe.folio, {
@@ -486,7 +483,7 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
       imprimirPlantilla(
         existe.horaLocal,
         horaSalida,
-        minutosTranscurridos,
+        redondearMinutos,
         monto,
         existe.folio
       );
@@ -502,11 +499,9 @@ document
     const folio = this.value.trim();
     const registros = await obtenerRegistrosEstacionamiento();
 
-    const fechaActual = new Date();
+    const fechaActual = moment();
 
-    const mesActual = fechaActual
-      .toLocaleString("default", { month: "short" })
-      .toUpperCase();
+    const mesActual = fechaActual.format("MMM").toUpperCase();
 
     const foliosMesActual = registros.filter((folio) => {
       return folio && folio.folio && folio.folio.startsWith(mesActual);
@@ -515,12 +510,6 @@ document
     const existe = foliosMesActual.filter(
       (registro) => registro.folio == folio
     );
-
-    let horaSalida = fechaActual.toLocaleTimeString("es-MX", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
 
     if (existe.length > 0) {
       const [existe] = foliosMesActual.filter(
@@ -531,48 +520,29 @@ document
         (categoria) => categoria.id == existe.categoria
       );
 
-      const monto = calcularCostoTotal(existe.horaLocal, isCategoria);
+      const monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
+      const fechaInicio = moment(existe.fechaEntrada);
 
-      const [horasInicio, minutosInicio] = existe.horaLocal
-        .split(":")
-        .map(Number);
+      const minutosTranscurridos = moment
+        .duration(fechaActual.diff(fechaInicio))
+        .asMinutes();
 
-      // Crear fecha de inicio con la misma fecha de hoy
-      const fechaInicio = new Date();
-      fechaInicio.setHours(horasInicio, minutosInicio, 0, 0); // Establecer solo la hora, minuto, segundos y milisegundos
-
-      // Crear fecha actual con la misma fecha de hoy
-      fechaActual.setSeconds(0);
-      fechaActual.setMilliseconds(0);
-
-      // Comprobar las fechas antes de calcular la diferencia
-      console.log("Fecha de inicio:", fechaInicio);
-      console.log("Fecha actual:", fechaActual);
-
-      // Calcular la diferencia en milisegundos
-      const diferenciaMilisegundos =
-        fechaActual.getTime() - fechaInicio.getTime();
-      console.log("Diferencia en milisegundos:", diferenciaMilisegundos);
-
-      // Calcular los minutos transcurridos
-      let minutosTranscurridos = Math.floor(
-        diferenciaMilisegundos / (1000 * 60)
-      );
-      console.log("Minutos transcurridos:", minutosTranscurridos);
-
+      document
+        .querySelector("#deleteTicket")
+        .setAttribute("ticketNum", existe.id);
       document.querySelector("#negocio-dos").textContent = "AUTOCARS";
       document.querySelector("#logoEstacionamiento-dos").src = `${logoImg}`;
       document.querySelector("#fechaEntrada-dos").textContent =
         existe.fechaLocal;
       document.querySelector(
         "#horaEntrada-dos"
-      ).textContent = `Entrada: ${existe.horaLocal}`;
+      ).textContent = `Entrada: ${fechaInicio.format("hh:mm A")}`;
       document.querySelector(
         "#horaSalida-dos"
-      ).textContent = `Salida: ${horaSalida}`;
-      document.querySelector(
-        "#tiempo-dos"
-      ).textContent = `Tiempo: ${minutosTranscurridos} minutos`;
+      ).textContent = `Salida: ${fechaActual.format("hh:mm A")}`;
+      document.querySelector("#tiempo-dos").textContent = `Tiempo: ${Math.ceil(
+        minutosTranscurridos
+      )} minutos`;
       document.querySelector("#total-dos").textContent = `Monto: $${monto}`;
       document.querySelector(".ticketDetalle").classList.remove("d-none");
       JsBarcode(document.querySelector("#codigoBarras-dos"), existe.folio, {
@@ -590,19 +560,8 @@ document
 //---------------------------------------------------------------------------//
 
 function calcularCostoTotal(inicio, datos) {
-  const ahora = new Date();
-  const [horasInicio, minutosInicio] = inicio.split(":").map(Number);
-  const fechaInicio = new Date();
-  fechaInicio.setHours(horasInicio);
-  fechaInicio.setMinutes(minutosInicio);
-  fechaInicio.setSeconds(0);
-
-  const diferenciaMilisegundos = ahora.getTime() - fechaInicio.getTime();
-  let minutosTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60));
-
-  if (minutosTranscurridos < 0) {
-    minutosTranscurridos = 0;
-  }
+  const ahora = moment();
+  const minutosTranscurridos = moment.duration(ahora.diff(inicio)).asMinutes();
 
   let costo = 0;
   let tiempo_minimo = parseFloat(datos.minimo);
@@ -721,6 +680,19 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
     }, 500);
   };
 }
+
+document.querySelector(".bloque-dos").addEventListener("click", (e) => {
+  if (e.target.classList.contains("btn-danger")) {
+    const id = parseInt(
+      document.querySelector("#deleteTicket").getAttribute("ticketNum")
+    );
+
+    console.log(id)
+
+    
+    eliminarRegistro("estacionamiento", id);
+  }
+});
 
 // Escuchar cambios en las pestañas
 /* document.querySelectorAll(".nav-link").forEach((enlace) => {

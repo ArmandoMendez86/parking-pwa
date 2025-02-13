@@ -11,6 +11,19 @@
   flex-grow: 1;
 }
 
+.eliminarTicket{
+  text-align: right;
+}
+
+.eliminarTicket button{
+
+ /*  padding: 1px 5px;
+  color: #fff; */
+  border: none;
+  border-radius: 50%;
+  
+}
+
 
 
 
