@@ -64,31 +64,60 @@
           </div>
         </form>
 
-        <div class="row g-3 justify-content-center mt-5">
-          <div class="col-3">
-            <label for="folio" class="visually-hidden">Num. Folio</label>
-            <input type="password" class="form-control" id="folio" placeholder="Escanea el folio...">
-          </div>
-        </div>
+
 
 
         <!-- Mostrando detalles del ticket -->
 
-        <div class="ticket d-none">
-          <div class="logo">
-            <!-- <img src="ruta/a/tu/logo.png" alt="Logo"> -->
-            <p class="mt-2">Nombre de la Empresa<br>Dirección</p>
+        <div class="contenedor-tickets mt-5">
+          <div class="bloque-uno">
+            <div class="col-6 mx-auto">
+              <input type="text" class="form-control text-center" id="folio" placeholder="Cobrar folio...">
+            </div>
+            <div class="ticket d-none">
+              <div class="logo">
+                <img id="logoEstacionamiento" alt="Logo">
+                <p class="mt-2" id="negocio">Nombre de la Empresa<br>Dirección</p>
+              </div>
+              <div class="details">
+                <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
+                <p id="fechaEntrada" class="text-center"></p>
+                <div class="d-flex justify-content-between horas">
+                  <p id="horaEntrada"></p>
+                  <p id="horaSalida"></p>
+                </div>
+                <p id="tiempo" class="text-center"></p>
+                <p id="total" class="text-center"></p>
+              </div>
+              <div class="barcode">
+                <svg id="codigoBarras"></svg>
+              </div>
+            </div>
           </div>
-          <div class="details">
-            <h4 class="text-center">RECIBO DE ESTACIONAMIENTO</h4>
-            <p>Fecha: 02/02/2022</p>
-            <p>Hora de Entrada: 10:50 am</p>
-            <p>Hora de Salida: 4:30 pm</p>
-            <p>TOTAL: 7.00</p>
-          </div>
-          <div class="barcode">
-            <!-- <img src="ruta/a/tu/codigo_de_barras.png" alt="Código de barras"> -->
-            <p class="mt-2">3489124578</p>
+          <div class="bloque-dos">
+            <div class="col-6 mx-auto">
+              <input type="text" class="form-control text-center" id="buscarFolio" placeholder="Detalle de folio...">
+            </div>
+
+             <div class="ticketDetalle d-none">
+              <div class="logo">
+                <img id="logoEstacionamiento-dos" alt="Logo">
+                <p class="mt-2" id="negocio-dos">Nombre de la Empresa<br>Dirección</p>
+              </div>
+              <div class="details">
+                <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
+                <p id="fechaEntrada-dos" class="text-center"></p>
+                <div class="d-flex justify-content-between horas">
+                  <p id="horaEntrada-dos"></p>
+                  <p id="horaSalida-dos"></p>
+                </div>
+                <p id="tiempo-dos" class="text-center"></p>
+                <p id="total-dos" class="text-center"></p>
+              </div>
+              <div class="barcode">
+                <svg id="codigoBarras-dos"></svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -318,7 +347,8 @@
     }
   </script>
 
-  <script src="js/app.js"></script>
+  <script src="js/jsbarcode.js"></script>
+  <script type="module" src="js/app.js"></script>
 
 </body>
 

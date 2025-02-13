@@ -1,7 +1,5 @@
-// app.js
-
+import { logoImg } from "./logo.js";
 let db;
-
 const estado = "pendiente";
 
 // Abrir o crear la base de datos
@@ -82,10 +80,11 @@ function configurarFormularios() {
         day: "numeric",
       });
 
-      let horaLocal = fecha.toLocaleTimeString("es-ES", {
+      let horaLocal = fecha.toLocaleTimeString("es-MX", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
+        hour12: true,
       });
 
       const placa = document.getElementById("placaE").value;
@@ -248,6 +247,8 @@ function agregarRegistro(storeName, data) {
   };
 }
 
+//------------------------------- CARGANDO LOS SELECTS -----------------------------//
+
 // Función para cargar datos de categorias
 function cargarCategorias() {
   const transaction = db.transaction("precios", "readonly");
@@ -326,7 +327,7 @@ function cargarPensiones() {
     });
   };
 }
-// Función para cargar datos de servicios
+
 function cargarServicios() {
   const transaction = db.transaction("tiposervicios", "readonly");
   const store = transaction.objectStore("tiposervicios");
@@ -353,22 +354,22 @@ function cargarServicios() {
   };
 }
 
+//---------------------------------------------------------------------------//
+
 function generarFolio(ultimosFolios) {
   const fechaActual = new Date();
   const mesActual = fechaActual
     .toLocaleString("default", { month: "short" })
     .toUpperCase();
 
-  // 2. Filtrado y manejo de mes sin folios:
   const foliosMesActual = ultimosFolios.filter((folio) => {
     return folio && folio.folio && folio.folio.startsWith(mesActual);
   });
 
   if (foliosMesActual.length === 0) {
-    return `${mesActual}-0001`; // Retorna el primer folio si no hay registros para el mes actual
+    return `${mesActual}-0001`;
   }
 
-  // 3. Encontrar el último folio y generar el siguiente (versión corregida):
   const ultimoFolio = foliosMesActual.reduce((maxFolio, folio) => {
     const numFolio = parseInt(folio.folio.split("-")[1]);
     const maxNum = parseInt(maxFolio.folio.split("-")[1]);
@@ -381,7 +382,8 @@ function generarFolio(ultimosFolios) {
   return `${mesActual}-${numeroFormateado}`;
 }
 
-// Función para obtener registros de estacionamiento
+//--------------------------------- OBTENCION DE DATOS --------------------------------//
+
 async function obtenerRegistrosEstacionamiento() {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("estacionamiento", "readonly");
@@ -397,6 +399,23 @@ async function obtenerRegistrosEstacionamiento() {
     };
   });
 }
+async function datosCategorias() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("precios", "readonly");
+    const store = transaction.objectStore("precios");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+
+//---------------------------------------------------------------------------//
 
 document.querySelector("#folio").addEventListener("input", async function (e) {
   const folio = this.value.trim();
@@ -413,10 +432,280 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
 
   const existe = foliosMesActual.filter((registro) => registro.folio == folio);
 
-  if (existe) {
+  let horaSalida = fechaActual.toLocaleTimeString("es-MX", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+  if (existe.length > 0) {
+    const [existe] = foliosMesActual.filter(
+      (registro) => registro.folio == folio
+    );
+    const categorias = await datosCategorias();
+    const [isCategoria] = categorias.filter(
+      (categoria) => categoria.id == existe.categoria
+    );
+
+    const monto = calcularCostoTotal(existe.horaLocal, isCategoria);
+
+    const [horasInicio, minutosInicio] = existe.horaLocal
+      .split(":")
+      .map(Number);
+    const fechaInicio = new Date();
+    fechaInicio.setHours(horasInicio);
+    fechaInicio.setMinutes(minutosInicio);
+    fechaInicio.setSeconds(0);
+
+    const diferenciaMilisegundos =
+      fechaActual.getTime() - fechaInicio.getTime();
+    let minutosTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60));
+    document.querySelector("#negocio").textContent = "AUTOCARS";
+    document.querySelector("#logoEstacionamiento").src = `${logoImg}`;
+    document.querySelector("#fechaEntrada").textContent = existe.fechaLocal;
+    document.querySelector(
+      "#horaEntrada"
+    ).textContent = `Entrada: ${existe.horaLocal}`;
+    document.querySelector("#horaSalida").textContent = `Salida: ${horaSalida}`;
+    document.querySelector(
+      "#tiempo"
+    ).textContent = `Tiempo: ${minutosTranscurridos} minutos`;
+    document.querySelector("#total").textContent = `Monto: $${monto}`;
     document.querySelector(".ticket").classList.remove("d-none");
+    JsBarcode(document.querySelector("#codigoBarras"), existe.folio, {
+      format: "CODE128",
+      lineColor: "#000",
+      width: 2,
+      height: 50,
+      displayValue: false,
+    });
+
+    setTimeout(() => {
+      imprimirPlantilla(
+        existe.horaLocal,
+        horaSalida,
+        minutosTranscurridos,
+        monto,
+        existe.folio
+      );
+    }, 1000);
+  } else {
+    document.querySelector(".ticket").classList.add("d-none");
   }
 });
+
+document
+  .querySelector("#buscarFolio")
+  .addEventListener("input", async function (e) {
+    const folio = this.value.trim();
+    const registros = await obtenerRegistrosEstacionamiento();
+
+    const fechaActual = new Date();
+    const mesActual = fechaActual
+      .toLocaleString("default", { month: "short" })
+      .toUpperCase();
+
+    const foliosMesActual = registros.filter((folio) => {
+      return folio && folio.folio && folio.folio.startsWith(mesActual);
+    });
+
+    const existe = foliosMesActual.filter(
+      (registro) => registro.folio == folio
+    );
+
+    let horaSalida = fechaActual.toLocaleTimeString("es-MX", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    if (existe.length > 0) {
+      const [existe] = foliosMesActual.filter(
+        (registro) => registro.folio == folio
+      );
+      const categorias = await datosCategorias();
+      const [isCategoria] = categorias.filter(
+        (categoria) => categoria.id == existe.categoria
+      );
+
+      const monto = calcularCostoTotal(existe.horaLocal, isCategoria);
+
+      const [horasInicio, minutosInicio] = existe.horaLocal
+        .split(":")
+        .map(Number);
+      const fechaInicio = new Date();
+      fechaInicio.setHours(horasInicio);
+      fechaInicio.setMinutes(minutosInicio);
+      fechaInicio.setSeconds(0);
+
+      const diferenciaMilisegundos =
+        fechaActual.getTime() - fechaInicio.getTime();
+      let minutosTranscurridos = Math.floor(
+        diferenciaMilisegundos / (1000 * 60)
+      );
+      document.querySelector("#negocio-dos").textContent = "AUTOCARS";
+      document.querySelector("#logoEstacionamiento-dos").src = `${logoImg}`;
+      document.querySelector("#fechaEntrada-dos").textContent =
+        existe.fechaLocal;
+      document.querySelector(
+        "#horaEntrada-dos"
+      ).textContent = `Entrada: ${existe.horaLocal}`;
+      document.querySelector(
+        "#horaSalida-dos"
+      ).textContent = `Salida: ${horaSalida}`;
+      document.querySelector(
+        "#tiempo-dos"
+      ).textContent = `Tiempo: ${minutosTranscurridos} minutos`;
+      document.querySelector("#total-dos").textContent = `Monto: $${monto}`;
+      document.querySelector(".ticketDetalle").classList.remove("d-none");
+      JsBarcode(document.querySelector("#codigoBarras-dos"), existe.folio, {
+        format: "CODE128",
+        lineColor: "#000",
+        width: 2,
+        height: 50,
+        displayValue: false,
+      });
+    } else {
+      document.querySelector(".ticketDetalle").classList.add("d-none");
+    }
+  });
+
+//---------------------------------------------------------------------------//
+
+function calcularCostoTotal(inicio, datos) {
+  const ahora = new Date();
+  const [horasInicio, minutosInicio] = inicio.split(":").map(Number);
+  const fechaInicio = new Date();
+  fechaInicio.setHours(horasInicio);
+  fechaInicio.setMinutes(minutosInicio);
+  fechaInicio.setSeconds(0);
+
+  const diferenciaMilisegundos = ahora.getTime() - fechaInicio.getTime();
+  let minutosTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60));
+
+  if (minutosTranscurridos < 0) {
+    minutosTranscurridos = 0;
+  }
+
+  let costo = 0;
+  let tiempo_minimo = parseFloat(datos.minimo);
+  let tiempo_maximo = parseFloat(datos.maximo);
+  let cuota_fraccion = parseFloat(datos.precioFraccion);
+  let precio_hora = parseFloat(datos.precioHora);
+
+  if (minutosTranscurridos <= 60) {
+    costo += precio_hora;
+  } else {
+    costo += precio_hora;
+
+    let tiempoRestante = minutosTranscurridos - 60;
+
+    while (tiempoRestante > 0) {
+      if (tiempoRestante >= tiempo_minimo) {
+        costo += cuota_fraccion;
+        tiempoRestante -= tiempo_maximo;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return costo;
+}
+
+function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
+  const nuevaVentana = window.open("", "_blank");
+  nuevaVentana.document.write(`
+      <html>
+      <head>
+          <title>Recibo de Estacionamiento</title>
+          <style>
+              .ticket {
+                  width: 300px;
+                  margin: 20px auto;
+                  border: 1px dashed #ccc;
+                  padding: 20px;
+              }
+              .logo {
+                  text-align: center;
+                  margin-bottom: 10px;
+              }
+              .logo img {
+                  max-width: 130px;
+              }
+              .details {
+                  margin-bottom: 20px;
+                  text-align: center;
+              }
+              .barcode {
+                  text-align: center;
+                  margin-top: 10px; /* Espacio arriba del código de barras */
+              }
+              .barcode svg {
+                  width: 100%; /* O un ancho fijo si lo prefieres */
+                  max-width: 280px; /* Ancho máximo para evitar que se salga del ticket */
+                  height: auto; /* Altura automática para mantener la proporción */
+              }
+              .horas{
+                display:flex;
+                justify-content: space-between;
+              }
+              .horas > p {
+                  font-size: 12px;
+              }
+              @media print {
+                  .barcode svg {
+                      width: 100%; /* Asegura el ancho completo en la impresión */
+                      max-width: 280px; /* Ancho máximo para evitar que se salga del ticket */
+                      height: auto; /* Altura automática para mantener la proporción */
+                  }
+              }
+          </style>
+      </head>
+      <body>
+          <div class="ticket">
+              <div class="logo">
+                  <img src="${logoImg}" alt="" />
+                  <p class="mt-2" id="negocio">Nombre de la Empresa<br>Dirección</p>
+              </div>
+              <div class="details">
+                  <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
+                  <p id="fechaEntrada" class="text-center"></p>
+                  <div class="horas"">
+                      <p id="horaEntrada">Entrada: ${entrada}</p>
+                      <p id="horaSalida">Salida: ${salida}</p>
+                  </div>
+                  <p id="tiempo" class="text-center">Tiempo: ${tiempo} minutos</p>
+                  <p id="total" class="text-center">Monto: $${total}</p>
+              </div>
+              <div class="barcode">
+                  <svg id="codigoBarras"></svg>
+              </div>
+          </div>
+      </body>
+      </html>
+  `);
+
+  nuevaVentana.document.close();
+  nuevaVentana.onload = function () {
+    JsBarcode(nuevaVentana.document.querySelector("#codigoBarras"), folio, {
+      format: "CODE128",
+      lineColor: "#808080",
+      width: 1.5, // Ajusta el grosor de las líneas
+      height: 40, // Ajusta la altura del código de barras
+      displayValue: false,
+      margin: 0, // Elimina los márgenes internos del código de barras
+    });
+
+    nuevaVentana.print();
+
+    setTimeout(() => {
+      nuevaVentana.close();
+    }, 500);
+  };
+}
 
 // Escuchar cambios en las pestañas
 /* document.querySelectorAll(".nav-link").forEach((enlace) => {

@@ -1,5 +1,29 @@
-.ticket {
-    width: 300px; /* Ajusta el ancho según tus necesidades */
+.contenedor-tickets{
+
+  width: 100%;
+  height: 400px;
+  
+  display: flex;
+
+}
+
+.bloque-uno, .bloque-dos{
+  flex-grow: 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.ticket, .ticketDetalle {
+    width: 300px; 
     margin: 20px auto;
     border: 1px dashed #ccc;
     padding: 20px;
@@ -9,7 +33,7 @@
     margin-bottom: 10px;
   }
   .logo img {
-    max-width: 150px;
+    max-width: 130px;
   }
   .details {
     margin-bottom: 20px;
@@ -17,6 +41,10 @@
   .barcode {
     text-align: center;
   }
-  .barcode img {
-    max-width: 200px;
+  .barcode svg {
+    max-width: 300px;
+  }
+
+  .horas >p{
+    font-size: 12px;
   }
