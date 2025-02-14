@@ -62,16 +62,17 @@ request.onerror = (event) => {
   console.error("Error al abrir la base de datos:", event.target.error);
 };
 
-function cargarDatosIniciales() {
-  configurarFormularios();
-  cargarCategorias();
-  cargarClientes();
-  cargarPensiones();
-  cargarServicios();
+async function cargarDatosIniciales() {
+  await configurarFormularios();
+  await cargarCategorias();
+  await cargarClientes();
+  await cargarPensiones();
+  await cargarServicios();
+  await configuracionSistema();
 }
 
 // Función para configurar los formularios
-function configurarFormularios() {
+async function configurarFormularios() {
   // Formulario de Estacionamiento
   document
     .getElementById("formEstacionamiento")
@@ -210,10 +211,11 @@ function configurarFormularios() {
     .getElementById("formConfiguracion")
     .addEventListener("submit", (event) => {
       event.preventDefault();
-      const negocio = document.getElementById("negocio").value;
-      const direccion = document.getElementById("direccion").value;
-      const telefono = document.getElementById("telefono").value;
-      agregarRegistro("sistema", { nombre, direccion, telefono });
+      const negocio = document.getElementById("nombreNegocio").value;
+      const direccion = document.getElementById("direccionNegocio").value;
+      const telefono = document.getElementById("telefonoNegocio").value;
+      const mensaje = document.getElementById("mensajeNegocio").value;
+      agregarRegistro("sistema", { negocio, direccion, telefono, mensaje });
     });
 
   //---------------------------------------------------------------------------//
@@ -258,7 +260,7 @@ function eliminarRegistro(storeName, data) {
 //------------------------------- CARGANDO LOS SELECTS -----------------------------//
 
 // Función para cargar datos de categorias
-function cargarCategorias() {
+async function cargarCategorias() {
   const transaction = db.transaction("precios", "readonly");
   const store = transaction.objectStore("precios");
   const request = store.getAll();
@@ -284,7 +286,7 @@ function cargarCategorias() {
   };
 }
 // Función para cargar datos de clientes
-function cargarClientes() {
+async function cargarClientes() {
   const transaction = db.transaction("clientes", "readonly");
   const store = transaction.objectStore("clientes");
   const request = store.getAll();
@@ -310,7 +312,7 @@ function cargarClientes() {
   };
 }
 // Función para cargar datos de pesiones
-function cargarPensiones() {
+async function cargarPensiones() {
   const transaction = db.transaction("tipopension", "readonly");
   const store = transaction.objectStore("tipopension");
   const request = store.getAll();
@@ -336,7 +338,7 @@ function cargarPensiones() {
   };
 }
 
-function cargarServicios() {
+async function cargarServicios() {
   const transaction = db.transaction("tiposervicios", "readonly");
   const store = transaction.objectStore("tiposervicios");
   const request = store.getAll();
@@ -360,6 +362,15 @@ function cargarServicios() {
       selectServicios.appendChild(option);
     });
   };
+}
+
+async function configuracionSistema() {
+  const datos = await cargarDatosSistema();
+  const informacion = datos[datos.length - 1];
+  document.querySelector("#nombreNegocio").value = informacion.negocio;
+  document.querySelector("#direccionNegocio").value = informacion.direccion;
+  document.querySelector("#telefonoNegocio").value = informacion.telefono;
+  document.querySelector("#mensajeNegocio").value = informacion.mensaje;
 }
 
 //---------------------------------------------------------------------------//
@@ -411,6 +422,22 @@ async function datosCategorias() {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("precios", "readonly");
     const store = transaction.objectStore("precios");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+
+async function cargarDatosSistema() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("sistema", "readonly");
+    const store = transaction.objectStore("sistema");
     const request = store.getAll();
 
     request.onsuccess = () => {
@@ -516,6 +543,9 @@ document
         (registro) => registro.folio == folio
       );
       const categorias = await datosCategorias();
+      const datosSistema = await cargarDatosSistema();
+      const [infoSistema] = datosSistema.slice(-1);
+
       const [isCategoria] = categorias.filter(
         (categoria) => categoria.id == existe.categoria
       );
@@ -530,7 +560,7 @@ document
       document
         .querySelector("#deleteTicket")
         .setAttribute("ticketNum", existe.id);
-      document.querySelector("#negocio-dos").textContent = "AUTOCARS";
+      document.querySelector("#negocio-dos").textContent = infoSistema.negocio;
       document.querySelector("#logoEstacionamiento-dos").src = `${logoImg}`;
       document.querySelector("#fechaEntrada-dos").textContent =
         existe.fechaLocal;
@@ -545,6 +575,8 @@ document
       )} minutos`;
       document.querySelector("#total-dos").textContent = `Monto: $${monto}`;
       document.querySelector(".ticketDetalle").classList.remove("d-none");
+      document.querySelector("#mensajeBoleto").textContent =
+        infoSistema.mensaje;
       JsBarcode(document.querySelector("#codigoBarras-dos"), existe.folio, {
         format: "CODE128",
         lineColor: "#000",
@@ -686,18 +718,6 @@ document.querySelector(".bloque-dos").addEventListener("click", (e) => {
     const id = parseInt(
       document.querySelector("#deleteTicket").getAttribute("ticketNum")
     );
-
-    console.log(id)
-
-    
     eliminarRegistro("estacionamiento", id);
   }
 });
-
-// Escuchar cambios en las pestañas
-/* document.querySelectorAll(".nav-link").forEach((enlace) => {
-  enlace.addEventListener("click", () => {
-    const target = enlace.getAttribute("data-bs-target");
-    window.history.pushState({ target: target }, "", `#${target}`);
-  });
-}); */

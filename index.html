@@ -118,6 +118,10 @@
               <div class="barcode">
                 <svg id="codigoBarras-dos"></svg>
               </div>
+              <div class="mensajeTicket">
+                <p id="mensajeBoleto"></p>
+              </div>
+
             </div>
           </div>
         </div>
@@ -302,19 +306,19 @@
           <h4 class="text-center">Configuracion del sistema</h4>
           <div class="col-md-6">
             <label for="negocio" class="form-label">Nombre del negocio</label>
-            <input type="text" class="form-control" id="negocio">
+            <input type="text" class="form-control" id="nombreNegocio">
           </div>
           <div class="col-md-6">
             <label for="direccion" class="form-label">Direccion</label>
-            <input type="text" class="form-control" id="direccion">
+            <input type="text" class="form-control" id="direccionNegocio">
           </div>
           <div class="col-md-6">
             <label for="telefono" class="form-label">Telefono</label>
-            <input type="tel" class="form-control" id="telefono">
+            <input type="tel" class="form-control" id="telefonoNegocio">
           </div>
           <div class="col-md-6">
             <label class="form-label" for="mensaje">Mensaje de ticket</label>
-            <textarea class="form-control" placeholder="Leave a comment here" id="mensaje"></textarea>
+            <textarea class="form-control" placeholder="Leave a comment here" id="mensajeNegocio"></textarea>
           </div>
           <div class="col-12">
             <button type="submit" class="btn btn-primary">Registrar</button>

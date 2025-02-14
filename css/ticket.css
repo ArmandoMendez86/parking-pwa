@@ -24,17 +24,6 @@
   
 }
 
-
-
-
-
-
-
-
-
-
-
-
 .ticket, .ticketDetalle {
     width: 300px; 
     margin: 20px auto;
@@ -60,4 +49,9 @@
 
   .horas >p{
     font-size: 12px;
+  }
+
+  .mensajeTicket{
+    font-size: 10px;
+    text-align: justify;
   }
