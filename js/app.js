@@ -71,9 +71,8 @@ async function cargarDatosIniciales() {
   await configuracionSistema();
 }
 
-// Función para configurar los formularios
 async function configurarFormularios() {
-  // Formulario de Estacionamiento
+  //------------------------------- FORMULARIO ESTACIONAMIENTO -----------------------------//
   document
     .getElementById("formEstacionamiento")
     .addEventListener("submit", async (event) => {
@@ -98,9 +97,7 @@ async function configurarFormularios() {
       });
     });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario de Pensión
+  //------------------------------- FORMULARIO PENSION -----------------------------//
   document.getElementById("formPension").addEventListener("submit", (event) => {
     event.preventDefault();
     const cliente = document.getElementById("cliente").value;
@@ -110,9 +107,7 @@ async function configurarFormularios() {
     agregarRegistro("pension", { cliente, tipo, marca, color });
   });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario Tipo Pensión
+  //------------------------------- FORMULARIO TIPO PENSION -----------------------------//
   document
     .getElementById("formTipoPension")
     .addEventListener("submit", (event) => {
@@ -123,9 +118,7 @@ async function configurarFormularios() {
       cargarPensiones();
     });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario Tipo Servicios
+  //------------------------------- FORMULARIO TIPO SERVICIO -----------------------------//
   document
     .getElementById("formTipoServicios")
     .addEventListener("submit", (event) => {
@@ -136,9 +129,7 @@ async function configurarFormularios() {
       cargarServicios();
     });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario de Clientes
+  //------------------------------- FORMULARIO CLIENTES -----------------------------//
   document
     .getElementById("formClientes")
     .addEventListener("submit", (event) => {
@@ -149,21 +140,17 @@ async function configurarFormularios() {
       cargarClientes();
     });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario venta Servicios
+  //------------------------------- FORMULARIO SERVICIOS -----------------------------//
   document
     .getElementById("formServicios")
     .addEventListener("submit", (event) => {
       event.preventDefault();
       const nombre = document.getElementById("servicio").value;
-      const costo = document.getElementById("costoServicio").value;
-      agregarRegistro("tiposervicios", { nombre, costo });
+      const cantidad = document.getElementById("cantidadServicio").value;
+      agregarRegistro("servicios", { nombre, cantidad });
     });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario de Gastos
+  //------------------------------- FORMULARIO GASTOS -----------------------------//
   document.getElementById("formGastos").addEventListener("submit", (event) => {
     event.preventDefault();
     const concepto = document.getElementById("concepto").value;
@@ -171,9 +158,7 @@ async function configurarFormularios() {
     agregarRegistro("gastos", { concepto, cantidad });
   });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario de Precios
+  //------------------------------- FORMULARIO PRECIOS -----------------------------//
   document.getElementById("formPrecios").addEventListener("submit", (event) => {
     event.preventDefault();
     const categoria = document.getElementById("categoriaP").value;
@@ -191,9 +176,7 @@ async function configurarFormularios() {
     cargarCategorias();
   });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario de Usuarios
+  //------------------------------- FORMULARIO USUARIOS -----------------------------//
   document
     .getElementById("formUsuarios")
     .addEventListener("submit", (event) => {
@@ -204,9 +187,7 @@ async function configurarFormularios() {
       agregarRegistro("usuarios", { nombre, perfil, password });
     });
 
-  //---------------------------------------------------------------------------//
-
-  // Formulario de Configuracion Sistema
+  //------------------------------- FORMULARIO CONFIGURACION SISTEMA -----------------------------//
   document
     .getElementById("formConfiguracion")
     .addEventListener("submit", (event) => {
@@ -217,11 +198,9 @@ async function configurarFormularios() {
       const mensaje = document.getElementById("mensajeNegocio").value;
       agregarRegistro("sistema", { negocio, direccion, telefono, mensaje });
     });
-
-  //---------------------------------------------------------------------------//
 }
 
-// Función para agregar un registro a IndexedDB
+//------------------------------- METODOS GENERICOS -----------------------------//
 function agregarRegistro(storeName, data) {
   const transaction = db.transaction(storeName, "readwrite");
   const store = transaction.objectStore(storeName);
@@ -240,7 +219,7 @@ function agregarRegistro(storeName, data) {
     alert("Error al guardar el registro");
   };
 }
-// Función para eliminar un registro a IndexedDB
+
 function eliminarRegistro(storeName, data) {
   const transaction = db.transaction(storeName, "readwrite");
   const store = transaction.objectStore(storeName);
@@ -259,19 +238,16 @@ function eliminarRegistro(storeName, data) {
 
 //------------------------------- CARGANDO LOS SELECTS -----------------------------//
 
-// Función para cargar datos de categorias
 async function cargarCategorias() {
   const transaction = db.transaction("precios", "readonly");
   const store = transaction.objectStore("precios");
   const request = store.getAll();
 
   request.onsuccess = () => {
-    const categoriaEstacionamiento = document.getElementById("categoria"); // Obtén el elemento select
+    const categoriaEstacionamiento = document.getElementById("categoria");
 
-    // Limpia las opciones existentes (si las hay)
     categoriaEstacionamiento.innerHTML = "";
 
-    // Crea la opción por defecto (opcional)
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.text = "Selecciona una categoria";
@@ -279,25 +255,23 @@ async function cargarCategorias() {
 
     request.result.forEach((item) => {
       const option = document.createElement("option");
-      option.value = item.id; // Usa el ID como valor de la opción
-      option.text = item.categoria; // Usa el nombre como texto de la opción
+      option.value = item.id;
+      option.text = item.categoria;
       categoriaEstacionamiento.appendChild(option);
     });
   };
 }
-// Función para cargar datos de clientes
+
 async function cargarClientes() {
   const transaction = db.transaction("clientes", "readonly");
   const store = transaction.objectStore("clientes");
   const request = store.getAll();
 
   request.onsuccess = () => {
-    const selectClientes = document.getElementById("cliente"); // Obtén el elemento select
+    const selectClientes = document.getElementById("cliente");
 
-    // Limpia las opciones existentes (si las hay)
     selectClientes.innerHTML = "";
 
-    // Crea la opción por defecto (opcional)
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.text = "Selecciona un cliente";
@@ -305,25 +279,23 @@ async function cargarClientes() {
 
     request.result.forEach((item) => {
       const option = document.createElement("option");
-      option.value = item.id; // Usa el ID como valor de la opción
-      option.text = item.nombre; // Usa el nombre como texto de la opción
+      option.value = item.id;
+      option.text = item.nombre;
       selectClientes.appendChild(option);
     });
   };
 }
-// Función para cargar datos de pesiones
+
 async function cargarPensiones() {
   const transaction = db.transaction("tipopension", "readonly");
   const store = transaction.objectStore("tipopension");
   const request = store.getAll();
 
   request.onsuccess = () => {
-    const selectPensiones = document.getElementById("tipo"); // Obtén el elemento select
+    const selectPensiones = document.getElementById("tipo");
 
-    // Limpia las opciones existentes (si las hay)
     selectPensiones.innerHTML = "";
 
-    // Crea la opción por defecto (opcional)
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.text = "Selecciona tipo de pension";
@@ -331,8 +303,8 @@ async function cargarPensiones() {
 
     request.result.forEach((item) => {
       const option = document.createElement("option");
-      option.value = item.id; // Usa el ID como valor de la opción
-      option.text = item.pension; // Usa el nombre como texto de la opción
+      option.value = item.id;
+      option.text = item.pension;
       selectPensiones.appendChild(option);
     });
   };
@@ -344,12 +316,10 @@ async function cargarServicios() {
   const request = store.getAll();
 
   request.onsuccess = () => {
-    const selectServicios = document.getElementById("servicio"); // Obtén el elemento select
+    const selectServicios = document.getElementById("servicio");
 
-    // Limpia las opciones existentes (si las hay)
     selectServicios.innerHTML = "";
 
-    // Crea la opción por defecto (opcional)
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
     defaultOption.text = "Selecciona tipo de servicio";
@@ -357,8 +327,8 @@ async function cargarServicios() {
 
     request.result.forEach((item) => {
       const option = document.createElement("option");
-      option.value = item.id; // Usa el ID como valor de la opción
-      option.text = item.tipoServicio; // Usa el nombre como texto de la opción
+      option.value = item.id;
+      option.text = item.tipoServicio;
       selectServicios.appendChild(option);
     });
   };
@@ -373,7 +343,7 @@ async function configuracionSistema() {
   document.querySelector("#mensajeNegocio").value = informacion.mensaje;
 }
 
-//---------------------------------------------------------------------------//
+//--------------------------------- NUMERO DE FOLIO --------------------------------//
 
 function generarFolio(ultimosFolios) {
   const fechaActual = new Date();
@@ -450,8 +420,7 @@ async function cargarDatosSistema() {
   });
 }
 
-//---------------------------------------------------------------------------//
-
+//------------------------------- COBRO DE FOLIO -----------------------------//
 document.querySelector("#folio").addEventListener("input", async function (e) {
   const folio = this.value.trim();
   const registros = await obtenerRegistrosEstacionamiento();
@@ -520,6 +489,7 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
   }
 });
 
+//------------------------------- CONSULTA DE FOLIO -----------------------------//
 document
   .querySelector("#buscarFolio")
   .addEventListener("input", async function (e) {
@@ -589,7 +559,7 @@ document
     }
   });
 
-//---------------------------------------------------------------------------//
+//------------------------------- COSTO TOTAL -----------------------------//
 
 function calcularCostoTotal(inicio, datos) {
   const ahora = moment();
@@ -620,6 +590,8 @@ function calcularCostoTotal(inicio, datos) {
 
   return costo;
 }
+
+//------------------------------- IMPRIMIR TICKET DE COBRO -----------------------------//
 
 function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
   const nuevaVentana = window.open("", "_blank");
@@ -699,10 +671,10 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
     JsBarcode(nuevaVentana.document.querySelector("#codigoBarras"), folio, {
       format: "CODE128",
       lineColor: "#808080",
-      width: 1.5, // Ajusta el grosor de las líneas
-      height: 40, // Ajusta la altura del código de barras
+      width: 1.5, 
+      height: 40, 
       displayValue: false,
-      margin: 0, // Elimina los márgenes internos del código de barras
+      margin: 0, 
     });
 
     nuevaVentana.print();
@@ -713,6 +685,7 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
   };
 }
 
+//------------------------------- ELIMINAR FOLIO -----------------------------//
 document.querySelector(".bloque-dos").addEventListener("click", (e) => {
   if (e.target.classList.contains("btn-danger")) {
     const id = parseInt(
