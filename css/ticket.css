@@ -11,6 +11,15 @@
   flex-grow: 1;
 }
 
+.encab_ticket{
+  display: flex;
+  justify-content: space-between;
+}
+
+.encab_ticket div:first-child{
+  color: red;
+}
+
 .eliminarTicket{
   text-align: right;
 }

@@ -86,6 +86,9 @@ async function configurarFormularios() {
       const color = document.getElementById("colorE").value;
       const registros = await obtenerRegistrosEstacionamiento();
       const folio = generarFolio(registros);
+
+      if (marca == "" || color == "") return;
+
       agregarRegistro("estacionamiento", {
         placa,
         categoria,
@@ -477,8 +480,8 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
 
     setTimeout(() => {
       imprimirPlantilla(
-        existe.horaLocal,
-        horaSalida,
+        fechaInicio.format("hh:mm A"),
+        fechaActual.format("hh:mm A"),
         redondearMinutos,
         monto,
         existe.folio
@@ -530,6 +533,7 @@ document
       document
         .querySelector("#deleteTicket")
         .setAttribute("ticketNum", existe.id);
+      document.querySelector("#folioNum").textContent = existe.folio;
       document.querySelector("#negocio-dos").textContent = infoSistema.negocio;
       document.querySelector("#logoEstacionamiento-dos").src = `${logoImg}`;
       document.querySelector("#fechaEntrada-dos").textContent =
@@ -601,10 +605,18 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
           <title>Recibo de Estacionamiento</title>
           <style>
               .ticket {
+                  position:relative;
                   width: 300px;
                   margin: 20px auto;
                   border: 1px dashed #ccc;
                   padding: 20px;
+              }
+
+              #folioNum{
+                  position:absolute;
+                  right:0;
+                  top:0;
+                  padding: 0.5rem;
               }
               .logo {
                   text-align: center;
@@ -644,6 +656,8 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
       </head>
       <body>
           <div class="ticket">
+              
+              <div id="folioNum">${folio}</div>
               <div class="logo">
                   <img src="${logoImg}" alt="" />
                   <p class="mt-2" id="negocio">Nombre de la Empresa<br>Dirección</p>
@@ -671,10 +685,10 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
     JsBarcode(nuevaVentana.document.querySelector("#codigoBarras"), folio, {
       format: "CODE128",
       lineColor: "#808080",
-      width: 1.5, 
-      height: 40, 
+      width: 1.5,
+      height: 40,
       displayValue: false,
-      margin: 0, 
+      margin: 0,
     });
 
     nuevaVentana.print();
