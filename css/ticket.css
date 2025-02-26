@@ -1,66 +1,82 @@
-.contenedor-tickets{
-
+.contenedor-tickets {
   width: 100%;
   height: 400px;
-  
-  display: flex;
 
+  display: flex;
 }
 
-.bloque-uno, .bloque-dos{
+.bloque-uno,
+.bloque-dos {
   flex-grow: 1;
 }
 
-.encab_ticket{
+.encab_ticket {
   display: flex;
   justify-content: space-between;
 }
 
-.encab_ticket div:first-child{
+.encab_ticket div:first-child {
   color: red;
 }
 
-.eliminarTicket{
+.eliminarTicket {
   text-align: right;
 }
 
-.eliminarTicket button{
-
- /*  padding: 1px 5px;
+.eliminarTicket button {
+  /*  padding: 1px 5px;
   color: #fff; */
   border: none;
   border-radius: 50%;
-  
 }
 
-.ticket, .ticketDetalle {
-    width: 300px; 
-    margin: 20px auto;
-    border: 1px dashed #ccc;
-    padding: 20px;
-  }
-  .logo {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-  .logo img {
-    max-width: 130px;
-  }
-  .details {
-    margin-bottom: 20px;
-  }
-  .barcode {
-    text-align: center;
-  }
-  .barcode svg {
-    max-width: 300px;
-  }
+.ticket,
+.ticketDetalle {
+  width: 300px;
+  margin: 20px auto;
+  border: 1px dashed #ccc;
+  padding: 20px;
+}
+.logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.logo img {
+  max-width: 130px;
+}
+.details {
+  margin-bottom: 20px;
+}
 
-  .horas >p{
-    font-size: 12px;
-  }
+#direccion {
+  font-size: xx-small;
+}
+.barcode {
+  text-align: center;
+}
+.barcode svg {
+  max-width: 300px;
+}
 
-  .mensajeTicket{
-    font-size: 10px;
-    text-align: justify;
+.horas > p {
+  font-size: 12px;
+}
+
+.mensajeTicket {
+  font-size: 10px;
+  text-align: justify;
+}
+
+@media screen and (max-width: 768px) {
+  #contenedor-principal {
+    flex-direction: column;
   }
+  #contenedor-principal > div:first-child {
+    width: 100% !important;
+    height: 125px !important;
+    flex-direction: row !important;
+    justify-content: center;
+    border: 2px dotted green !important;
+    padding: 1rem;
+  }
+}

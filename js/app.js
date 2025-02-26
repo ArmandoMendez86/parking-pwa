@@ -101,14 +101,19 @@ async function configurarFormularios() {
     });
 
   //------------------------------- FORMULARIO PENSION -----------------------------//
-  document.getElementById("formPension").addEventListener("submit", (event) => {
-    event.preventDefault();
-    const cliente = document.getElementById("cliente").value;
-    const tipo = document.getElementById("tipo").value;
-    const marca = document.getElementById("marca").value;
-    const color = document.getElementById("color").value;
-    agregarRegistro("pension", { cliente, tipo, marca, color });
-  });
+  document
+    .getElementById("formPension")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+      let fechaEntrada = moment().format("YYYY-MM-DD HH:mm:ss");
+      const cliente = document.getElementById("cliente").value;
+      const tipo = document.getElementById("tipo").value;
+      const marca = document.getElementById("marca").value;
+      const color = document.getElementById("color").value;
+      const registros = await obtenerRegistrosPension();
+      const folio = generarFolio(registros);
+      agregarRegistro("pension", { cliente, tipo, marca, color, folio, fechaEntrada });
+    });
 
   //------------------------------- FORMULARIO TIPO PENSION -----------------------------//
   document
@@ -391,10 +396,40 @@ async function obtenerRegistrosEstacionamiento() {
     };
   });
 }
+async function obtenerRegistrosPension() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("pension", "readonly");
+    const store = transaction.objectStore("pension");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
 async function datosCategorias() {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("precios", "readonly");
     const store = transaction.objectStore("precios");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+async function datosTipoPension() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("tipopension", "readonly");
+    const store = transaction.objectStore("tipopension");
     const request = store.getAll();
 
     request.onsuccess = () => {
@@ -423,7 +458,7 @@ async function cargarDatosSistema() {
   });
 }
 
-//------------------------------- COBRO DE FOLIO -----------------------------//
+//------------------------------- COBRO DE FOLIO ESTACIONAMIENTO -----------------------------//
 document.querySelector("#folio").addEventListener("input", async function (e) {
   const folio = this.value.trim();
   const registros = await obtenerRegistrosEstacionamiento();
@@ -492,7 +527,7 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
   }
 });
 
-//------------------------------- CONSULTA DE FOLIO -----------------------------//
+//------------------------------- CONSULTA DE FOLIO ESTACIONAMIENTO -----------------------------//
 document
   .querySelector("#buscarFolio")
   .addEventListener("input", async function (e) {
@@ -699,7 +734,7 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
   };
 }
 
-//------------------------------- ELIMINAR FOLIO -----------------------------//
+//------------------------------- ELIMINAR FOLIO ESTACIONAMIENTO -----------------------------//
 document.querySelector(".bloque-dos").addEventListener("click", (e) => {
   if (e.target.classList.contains("btn-danger")) {
     const id = parseInt(
@@ -708,3 +743,65 @@ document.querySelector(".bloque-dos").addEventListener("click", (e) => {
     eliminarRegistro("estacionamiento", id);
   }
 });
+
+//------------------------------- COBRO DE FOLIO PENSION -----------------------------//
+document
+  .querySelector("#folioPension")
+  .addEventListener("input", async function (e) {
+    const folio = this.value.trim();
+    const registros = await obtenerRegistrosPension();
+    const fechaActual = moment();
+
+    const mesActual = fechaActual.format("MMM").toUpperCase();
+
+    const foliosMesActual = registros.filter((folio) => {
+      return folio && folio.folio && folio.folio.startsWith(mesActual);
+    });
+
+    const existe = foliosMesActual.filter(
+      (registro) => registro.folio == folio
+    );
+
+    if (existe.length > 0) {
+      const [existe] = foliosMesActual.filter(
+        (registro) => registro.folio == folio
+      );
+      const pensiones = await datosTipoPension();
+      const [isPension] = pensiones.filter(
+        (pension) => pension.id == existe.tipo
+      );
+      const datosSistema = await cargarDatosSistema();
+      const [infoSistema] = datosSistema.slice(-1);
+
+      const monto = isPension.precio ;
+      const fechaInicio = moment(existe.fechaEntrada);
+
+      document.querySelector("#negocioPension").textContent = infoSistema.negocio.toUpperCase();
+      document.querySelector("#direccion").textContent = infoSistema.direccion;
+      document.querySelector("#logoPension").src = `${logoImg}`;
+      document.querySelector("#entradaPension").textContent = fechaInicio.format("DD/MM/YYYY h:mm:ss");
+     
+     
+      document.querySelector("#totalPension").textContent = `Monto: $${monto}`;
+      document.querySelector(".ticketPension").classList.remove("d-none");
+      JsBarcode(document.querySelector("#codigoBarrasPension"), existe.folio, {
+        format: "CODE128",
+        lineColor: "#000",
+        width: 2,
+        height: 50,
+        displayValue: false,
+      });
+
+     /*  setTimeout(() => {
+        imprimirPlantilla(
+          fechaInicio.format("hh:mm A"),
+          fechaActual.format("hh:mm A"),
+          redondearMinutos,
+          monto,
+          existe.folio
+        );
+      }, 1000); */
+    } else {
+      document.querySelector(".ticket").classList.add("d-none");
+    }
+  });

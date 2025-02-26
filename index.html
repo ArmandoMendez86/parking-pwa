@@ -14,17 +14,28 @@
     <link rel="stylesheet" href="css/ticket.css" />
   </head>
 
-  <body>
-    <div class="d-flex align-items-start p-4">
-      <div
-        class="nav flex-column nav-pills me-3 align-items-start border"
+  <body style="height: 100vh;">
+    <nav class="navbar bg-secondary">
+      <div class="container-fluid ">
+        <a class="navbar-brand text-white" href="#">
+          <img src="img/logo.jpg" alt="Logo" width="150" height="50" class="d-inline-block align-text-top">
+          CONTROL DE ESTACIONAMIENTO V.1
+        </a>
+        <div>
+          <button class="btn btn-danger rounded-circle">X</button>
+        </div>
+      </div>
+    </nav>
+    <div class="d-flex align-items-start h-100" id="contenedor-principal">
+      <div 
+        class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2 bg-secondary "
         id="v-pills-tab"
         role="tablist"
         aria-orientation="vertical"
-        style="width: 250px; height: 100vh"
+        style="width: 250px; height: 100%"
       >
         <button
-          class="nav-link active"
+          class="nav-link active w-100"
           id="v-pills-home-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-home"
@@ -36,7 +47,7 @@
           Estacionamiento
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-profile-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-profile"
@@ -48,7 +59,7 @@
           Pension
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-disabled-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-disabled"
@@ -60,7 +71,7 @@
           Clientes
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-messages-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-messages"
@@ -72,7 +83,7 @@
           Servicios
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-settings-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-settings"
@@ -84,7 +95,7 @@
           Gastos
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-panel-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-panel"
@@ -96,7 +107,7 @@
           Panel
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-precios-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-precios"
@@ -108,7 +119,7 @@
           Precios
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-usuarios-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-usuarios"
@@ -120,7 +131,7 @@
           Usuarios
         </button>
         <button
-          class="nav-link"
+          class="nav-link w-100"
           id="v-pills-sistema-tab"
           data-bs-toggle="pill"
           data-bs-target="#v-pills-sistema"
@@ -132,7 +143,7 @@
           Sistema
         </button>
       </div>
-      <div class="tab-content w-100" id="v-pills-tabContent">
+      <div class="tab-content w-100 mt-2 bg-secondary" id="v-pills-tabContent">
         <div
           class="tab-pane fade show active"
           id="v-pills-home"
@@ -281,6 +292,37 @@
               <button type="submit" class="btn btn-primary">Registrar</button>
             </div>
           </form>
+          <div class="contenedor-tickets mt-5">
+            <div class="bloque-uno">
+              <div class="col-5 mx-auto">
+                <input
+                  type="text"
+                  class="form-control text-center"
+                  id="folioPension"
+                  placeholder="Cobrar folio..."
+                />
+              </div>
+              <div class="ticketPension mt-4 d-none">
+                <div class="logo">
+                  <img id="logoPension" alt="Logo" />
+                  <p class="mt-2" id="negocioPension"></p>
+                  <small id="direccion"></small>
+                </div>
+                <div class="details">
+                  <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
+                  <p id="entradaPension" class="text-center"></p>
+                  <div class="d-flex justify-content-between horas">
+                    <p id="horaEntrada"></p>
+                  </div>
+                  
+                  <p id="totalPension" class="text-center"></p>
+                </div>
+                <div class="barcode">
+                  <svg id="codigoBarrasPension"></svg>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div
           class="tab-pane fade"
