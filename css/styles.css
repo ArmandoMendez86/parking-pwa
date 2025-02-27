@@ -1,0 +1,32 @@
+body{
+    color: #fff !important;
+}
+
+
+#v-pills-tab, #v-pills-tabContent, .navbar{
+    background-color: #103d71 !important;
+}
+
+
+
+
+
+
+
+@media screen and (max-width: 768px) {
+    #contenedor-principal {
+      flex-direction: column;
+    }
+    #contenedor-principal > div:first-child {
+      width: 100% !important;
+      height: 125px !important;
+      flex-direction: row !important;
+      justify-content: center;
+      border: 2px dotted green !important;
+      padding: 1rem;
+    }
+    #contenedor-principal > div > button{
+        width: auto !important;
+    }
+  }
+

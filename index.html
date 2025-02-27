@@ -10,15 +10,23 @@
       integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="css/ticket.css" />
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
 
-  <body style="height: 100vh;">
-    <nav class="navbar bg-secondary">
-      <div class="container-fluid ">
+  <body>
+    <nav class="navbar">
+      <div class="container-fluid">
         <a class="navbar-brand text-white" href="#">
-          <img src="img/logo.jpg" alt="Logo" width="150" height="50" class="d-inline-block align-text-top">
+          <img
+            src="img/logo.jpg"
+            alt="Logo"
+            width="150"
+            height="50"
+            class="d-inline-block align-text-top"
+          />
           CONTROL DE ESTACIONAMIENTO V.1
         </a>
         <div>
@@ -26,9 +34,9 @@
         </div>
       </div>
     </nav>
-    <div class="d-flex align-items-start h-100" id="contenedor-principal">
-      <div 
-        class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2 bg-secondary "
+    <div class="d-flex align-items-start vh-100" id="contenedor-principal">
+      <div
+        class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2"
         id="v-pills-tab"
         role="tablist"
         aria-orientation="vertical"
@@ -143,7 +151,7 @@
           Sistema
         </button>
       </div>
-      <div class="tab-content w-100 mt-2 bg-secondary" id="v-pills-tabContent">
+      <div class="tab-content w-100 mt-2 p-5 h-100" id="v-pills-tabContent">
         <div
           class="tab-pane fade show active"
           id="v-pills-home"
@@ -153,7 +161,7 @@
         >
           <!-- Vista de estacionamiento -->
           <form class="row g-3" id="formEstacionamiento">
-            <h4 class="text-center">Registrar entrada</h4>
+            <h4 class="text-center">Registrar Estacionamiento</h4>
             <div class="col-md-6">
               <label for="placaE" class="form-label">Placas</label>
               <input type="text" class="form-control" id="placaE" />
@@ -189,10 +197,8 @@
               </div>
               <div class="ticket d-none">
                 <div class="logo">
-                  <img id="logoEstacionamiento" alt="Logo" />
-                  <p class="mt-2" id="negocio">
-                    Nombre de la Empresa<br />Dirección
-                  </p>
+                  <img id="logoEstacionamiento" alt="Logo" class="rounded-circle" />
+                  <p class="mt-2" id="negocioEstacionamiento"></p>
                 </div>
                 <div class="details">
                   <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
@@ -271,7 +277,7 @@
         >
           <!-- Vista de pension -->
           <form class="row g-3" id="formPension">
-            <h4 class="text-center">Registrar entrada</h4>
+            <h4 class="text-center">Registrar Pensión</h4>
             <div class="col-md-6">
               <label for="cliente" class="form-label">Cliente</label>
               <select name="" id="cliente" class="form-control"></select>
@@ -292,9 +298,9 @@
               <button type="submit" class="btn btn-primary">Registrar</button>
             </div>
           </form>
-          <div class="contenedor-tickets mt-5">
-            <div class="bloque-uno">
-              <div class="col-5 mx-auto">
+          <div class="d-flex justify-content-center mt-5 impresionTicket">
+            <div class="col-4">
+              <div class="mx-auto">
                 <input
                   type="text"
                   class="form-control text-center"
@@ -303,18 +309,33 @@
                 />
               </div>
               <div class="ticketPension mt-4 d-none">
+                <div class="encab_ticket">
+                  <div id="folioNumPension" class="text-white"></div>
+                  <div class="eliminarTicket">
+                    <button
+                      id="imprimirTicket"
+                      type="button"
+                      class="btn btn-light btn-sm"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Imprimir ticket"
+                    >
+                      <i class="fa fa-print"></i>
+                    </button>
+                  </div>
+                </div>
                 <div class="logo">
-                  <img id="logoPension" alt="Logo" />
+                  <img id="logoPension" alt="Logo" class="rounded-circle" />
                   <p class="mt-2" id="negocioPension"></p>
                   <small id="direccion"></small>
                 </div>
                 <div class="details">
-                  <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
+                  <h6 class="text-center">RECIBO DE PENSIÓN</h6>
                   <p id="entradaPension" class="text-center"></p>
                   <div class="d-flex justify-content-between horas">
                     <p id="horaEntrada"></p>
                   </div>
-                  
+
                   <p id="totalPension" class="text-center"></p>
                 </div>
                 <div class="barcode">
@@ -385,7 +406,7 @@
         >
           <!-- Vista de gastos -->
           <form class="row g-3" id="formGastos">
-            <h4 class="text-center">Registrar gasto</h4>
+            <h4 class="text-center">Registrar Gasto</h4>
             <div class="col-md-6">
               <label for="concepto" class="form-label">Concepto</label>
               <input type="text" class="form-control" id="concepto" />
@@ -424,7 +445,7 @@
         >
           <!-- Precios Estacionamiento -->
           <form class="row g-3" id="formPrecios">
-            <h4 class="text-center">Registrar Precios Estacionamiento</h4>
+            <h4 class="text-center">Precios Estacionamiento</h4>
             <div class="col-md-6">
               <label for="categoriaP" class="form-label">Categoria</label>
               <input type="text" class="form-control" id="categoriaP" />
@@ -479,7 +500,7 @@
           </form>
           <!-- Precios Pension -->
           <form class="row g-3 mt-4" id="formTipoPension">
-            <h4 class="text-center">Registrar precios Pensiones</h4>
+            <h4 class="text-center">Precios Pensiones</h4>
             <div class="col-md-6">
               <label for="tipoPension" class="form-label">Pension</label>
               <input type="text" class="form-control" id="tipoPension" />
@@ -494,7 +515,7 @@
           </form>
           <!-- Precios Servicios -->
           <form class="row g-3 mt-4" id="formTipoServicios">
-            <h4 class="text-center">Registrar Precios Servicios</h4>
+            <h4 class="text-center">Precios Servicios</h4>
             <div class="col-md-6">
               <label for="tipoServicio" class="form-label">Servicio</label>
               <input type="text" class="form-control" id="tipoServicio" />
@@ -517,7 +538,7 @@
         >
           <!-- Vista de usuarios -->
           <form class="row g-3" id="formUsuarios">
-            <h4 class="text-center">Registrar usuario</h4>
+            <h4 class="text-center">Registrar Usuario</h4>
             <div class="col-md-6">
               <label for="nombre" class="form-label">Nombre</label>
               <input type="text" class="form-control" id="nombre" />

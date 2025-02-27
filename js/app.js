@@ -79,7 +79,7 @@ async function configurarFormularios() {
       event.preventDefault();
 
       let fechaEntrada = moment().format("YYYY-MM-DD HH:mm:ss");
-
+      let fechaInicio = moment(fechaEntrada);
       const placa = document.getElementById("placaE").value;
       const categoria = document.getElementById("categoria").value;
       const marca = document.getElementById("marcaE").value;
@@ -89,7 +89,7 @@ async function configurarFormularios() {
 
       if (marca == "" || color == "") return;
 
-      agregarRegistro("estacionamiento", {
+      await agregarRegistro("estacionamiento", {
         placa,
         categoria,
         marca,
@@ -98,6 +98,21 @@ async function configurarFormularios() {
         estado,
         folio,
       });
+
+      const infoSistema = await configuracionSistema();
+      //console.log(infoSistema);
+      imprimirPlantilla(
+        infoSistema.negocio,
+        infoSistema.direccion,
+        fechaInicio,
+        "",
+        "",
+        "",
+        folio,
+        infoSistema.mensaje,
+        placa,
+        color
+      );
     });
 
   //------------------------------- FORMULARIO PENSION -----------------------------//
@@ -112,7 +127,14 @@ async function configurarFormularios() {
       const color = document.getElementById("color").value;
       const registros = await obtenerRegistrosPension();
       const folio = generarFolio(registros);
-      agregarRegistro("pension", { cliente, tipo, marca, color, folio, fechaEntrada });
+      agregarRegistro("pension", {
+        cliente,
+        tipo,
+        marca,
+        color,
+        folio,
+        fechaEntrada,
+      });
     });
 
   //------------------------------- FORMULARIO TIPO PENSION -----------------------------//
@@ -153,9 +175,9 @@ async function configurarFormularios() {
     .getElementById("formServicios")
     .addEventListener("submit", (event) => {
       event.preventDefault();
-      const nombre = document.getElementById("servicio").value;
+      const tipo = document.getElementById("servicio").value;
       const cantidad = document.getElementById("cantidadServicio").value;
-      agregarRegistro("servicios", { nombre, cantidad });
+      agregarRegistro("servicios", { tipo, cantidad });
     });
 
   //------------------------------- FORMULARIO GASTOS -----------------------------//
@@ -209,23 +231,32 @@ async function configurarFormularios() {
 }
 
 //------------------------------- METODOS GENERICOS -----------------------------//
-function agregarRegistro(storeName, data) {
-  const transaction = db.transaction(storeName, "readwrite");
-  const store = transaction.objectStore(storeName);
-  const request = store.add(data);
+async function agregarRegistro(storeName, data) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(storeName, "readwrite");
+    const store = transaction.objectStore(storeName);
+    const request = store.add(data);
 
-  request.onsuccess = () => {
-    console.log("Registro agregado con éxito");
-    document.querySelectorAll("form").forEach((element) => {
-      element.reset();
-    });
-    alert("Registro guardado correctamente");
-  };
+    request.onsuccess = () => {
+      console.log("Registro agregado con éxito");
 
-  request.onerror = (event) => {
-    console.error("Error al agregar el registro:", event.target.error);
-    alert("Error al guardar el registro");
-  };
+      // Excluir el formulario con id "formConfiguracion"
+      document.querySelectorAll("form").forEach((element) => {
+        if (element.id !== "formConfiguracion") {
+          element.reset();
+        }
+      });
+
+      alert("Registro guardado correctamente");
+      resolve(request.result); // Resuelve la promesa con el ID del nuevo registro
+    };
+
+    request.onerror = (event) => {
+      console.error("Error al agregar el registro:", event.target.error);
+      alert("Error al guardar el registro");
+      reject(event.target.error); // Rechaza la promesa con el error
+    };
+  });
 }
 
 function eliminarRegistro(storeName, data) {
@@ -241,6 +272,21 @@ function eliminarRegistro(storeName, data) {
   request.onerror = (event) => {
     console.error("Error al eliminar el registro:", event.target.error);
     alert("Error al eliminar el registro");
+  };
+}
+function actualizarRegistro(storeName, data) {
+  const transaction = db.transaction(storeName, "readwrite");
+  const store = transaction.objectStore(storeName);
+  const request = store.put(data);
+
+  request.onsuccess = () => {
+    console.log("Registro actualizado con éxito:", data);
+    alert("Registro actualizado correctamente");
+  };
+
+  request.onerror = (event) => {
+    console.error("Error al actualizar el registro:", event.target.error);
+    alert("Error al actualizar el registro");
   };
 }
 
@@ -349,6 +395,7 @@ async function configuracionSistema() {
   document.querySelector("#direccionNegocio").value = informacion.direccion;
   document.querySelector("#telefonoNegocio").value = informacion.telefono;
   document.querySelector("#mensajeNegocio").value = informacion.mensaje;
+  return informacion;
 }
 
 //--------------------------------- NUMERO DE FOLIO --------------------------------//
@@ -482,18 +529,31 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
       (categoria) => categoria.id == existe.categoria
     );
 
+    const datosSistema = await cargarDatosSistema();
+    const [infoSistema] = datosSistema.slice(-1);
+
+    console.log(infoSistema);
+
     const monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
     const fechaInicio = moment(existe.fechaEntrada);
-
     const minutosTranscurridos = moment
       .duration(fechaActual.diff(fechaInicio))
       .asMinutes();
-
     const redondearMinutos = Math.ceil(minutosTranscurridos);
 
-    document.querySelector("#negocio").textContent = "AUTOCARS";
+    // Agregar fecha de salida y monto al registro
+    existe.fechaSalida = fechaActual.format("YYYY-MM-DD HH:mm:ss");
+    existe.monto = monto;
+    existe.estado = "pagado";
+
+    actualizarRegistro("estacionamiento", existe);
+
+    document.querySelector("#negocioEstacionamiento").textContent =
+      infoSistema.negocio.toUpperCase();
     document.querySelector("#logoEstacionamiento").src = `${logoImg}`;
-    document.querySelector("#fechaEntrada").textContent = existe.fechaLocal;
+    document.querySelector("#fechaEntrada").textContent = `${fechaInicio.format(
+      "DD/MM/YYYY h:mm:ss"
+    )}`;
     document.querySelector(
       "#horaEntrada"
     ).textContent = `Entrada: ${fechaInicio.format("hh:mm A")}`;
@@ -515,11 +575,16 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
 
     setTimeout(() => {
       imprimirPlantilla(
-        fechaInicio.format("hh:mm A"),
+        infoSistema.negocio,
+        infoSistema.direccion,
+        fechaInicio,
         fechaActual.format("hh:mm A"),
         redondearMinutos,
         monto,
-        existe.folio
+        existe.folio,
+        "Gracias por su preferencia!",
+        existe.placa,
+        existe.color
       );
     }, 1000);
   } else {
@@ -630,9 +695,20 @@ function calcularCostoTotal(inicio, datos) {
   return costo;
 }
 
-//------------------------------- IMPRIMIR TICKET DE COBRO -----------------------------//
+//------------------------------- IMPRIMIR TICKET DE COBRO ESTACIONAMIENTO -----------------------------//
 
-function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
+function imprimirPlantilla(
+  negocio,
+  direccion,
+  entrada,
+  salida,
+  tiempo,
+  total,
+  folio,
+  mensaje = "Gracias por su preferencia!",
+  placa = "",
+  color = ""
+) {
   const nuevaVentana = window.open("", "_blank");
   nuevaVentana.document.write(`
       <html>
@@ -660,26 +736,53 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
               .logo img {
                   max-width: 130px;
               }
+
+              .logo p{
+                padding:0;
+                margin:0;
+                margin-top:20px;
+                text-transform:uppercase;
+              }
+
+              .logo small{
+                padding:0;          
+              }
               .details {
                   margin-bottom: 20px;
                   text-align: center;
               }
               .barcode {
                   text-align: center;
-                  margin-top: 10px; /* Espacio arriba del código de barras */
+                  margin-top: 10px; 
               }
               .barcode svg {
                   width: 100%; /* O un ancho fijo si lo prefieres */
                   max-width: 280px; /* Ancho máximo para evitar que se salga del ticket */
                   height: auto; /* Altura automática para mantener la proporción */
               }
-              .horas{
+              .horasC{
+                display:flex;
+                justify-content: center;
+              }
+              .horasJ{
                 display:flex;
                 justify-content: space-between;
               }
               .horas > p {
-                  font-size: 12px;
+                  font-size: 14px;
               }
+
+              .mensajeC{
+                font-size:12px;
+                text-align:center;
+                text-transform:uppercase;
+              }
+              .mensajeJ{
+                font-size:12px;
+                text-align:justify;
+                text-transform:uppercase;
+              }
+              
               @media print {
                   .barcode svg {
                       width: 100%; /* Asegura el ancho completo en la impresión */
@@ -691,25 +794,32 @@ function imprimirPlantilla(entrada, salida, tiempo, total, folio) {
       </head>
       <body>
           <div class="ticket">
-              
               <div id="folioNum">${folio}</div>
               <div class="logo">
                   <img src="${logoImg}" alt="" />
-                  <p class="mt-2" id="negocio">Nombre de la Empresa<br>Dirección</p>
+                  <p>${negocio}</p>
+                  <small id="direccion">${direccion}</small>
               </div>
               <div class="details">
-                  <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
-                  <p id="fechaEntrada" class="text-center"></p>
-                  <div class="horas"">
-                      <p id="horaEntrada">Entrada: ${entrada}</p>
-                      <p id="horaSalida">Salida: ${salida}</p>
+                  <h5>RECIBO DE ESTACIONAMIENTO</h5>
+                  <p>${entrada.format("DD/MM/YYYY")}</p>
+                  <div class="${salida != "" ? "horasJ" : "horasC"}">
+                      <p>Entrada: ${entrada.format("hh:mm A")}</p>
+                      <p>${salida != "" ? `Salida: ${salida}` : ""}</p>
                   </div>
-                  <p id="tiempo" class="text-center">Tiempo: ${tiempo} minutos</p>
-                  <p id="total" class="text-center">Monto: $${total}</p>
+                  <div class="horasJ">
+                      <p>${placa != "" ? `Placa: ${placa}` : ""}</p>
+                      <p>${color != "" ? `Color: ${color}` : ""}</p>
+                  </div>
+                  <p>${tiempo != "" ? `Tiempo: ${tiempo} minutos` : ""}</p>
+                  <p>${total != "" ? `Monto: $${total}` : ""}</p>
               </div>
               <div class="barcode">
                   <svg id="codigoBarras"></svg>
               </div>
+              <p class=" ${
+                salida != "" ? "mensajeC" : "mensajeJ"
+              } ">${mensaje}</p>
           </div>
       </body>
       </html>
@@ -773,15 +883,17 @@ document
       const datosSistema = await cargarDatosSistema();
       const [infoSistema] = datosSistema.slice(-1);
 
-      const monto = isPension.precio ;
+      const monto = isPension.precio;
       const fechaInicio = moment(existe.fechaEntrada);
 
-      document.querySelector("#negocioPension").textContent = infoSistema.negocio.toUpperCase();
+      document.querySelector("#folioNumPension").textContent = existe.folio;
+      document.querySelector("#negocioPension").textContent =
+        infoSistema.negocio.toUpperCase();
       document.querySelector("#direccion").textContent = infoSistema.direccion;
       document.querySelector("#logoPension").src = `${logoImg}`;
-      document.querySelector("#entradaPension").textContent = fechaInicio.format("DD/MM/YYYY h:mm:ss");
-     
-     
+      document.querySelector("#entradaPension").textContent =
+        fechaInicio.format("DD/MM/YYYY h:mm:ss");
+
       document.querySelector("#totalPension").textContent = `Monto: $${monto}`;
       document.querySelector(".ticketPension").classList.remove("d-none");
       JsBarcode(document.querySelector("#codigoBarrasPension"), existe.folio, {
@@ -792,16 +904,151 @@ document
         displayValue: false,
       });
 
-     /*  setTimeout(() => {
-        imprimirPlantilla(
-          fechaInicio.format("hh:mm A"),
-          fechaActual.format("hh:mm A"),
-          redondearMinutos,
-          monto,
-          existe.folio
-        );
-      }, 1000); */
+      //------------------------------- IMPRIMIR FOLIO PENSION -----------------------------//
+      document
+        .querySelector(".impresionTicket")
+        .addEventListener("click", (e) => {
+          const btnImprimir = e.target.closest(".btn-light");
+          if (btnImprimir) {
+            imprimirPlantillaPension(
+              infoSistema.negocio,
+              infoSistema.direccion,
+              fechaInicio.format("DD/MM/YYYY hh:mm"),
+              moment().format("DD/MM/YYYY hh:mm"),
+              monto,
+              existe.folio,
+              infoSistema.mensaje,
+              existe.marca,
+              existe.color
+            );
+          }
+        });
     } else {
-      document.querySelector(".ticket").classList.add("d-none");
+      document.querySelector(".ticketPension").classList.add("d-none");
     }
   });
+
+//------------------------------- IMPRIMIR TICKET DE COBRO ESTACIONAMIENTO -----------------------------//
+
+function imprimirPlantillaPension(
+  negocio,
+  direccion,
+  entrada,
+  salida,
+  total,
+  folio,
+  mensaje,
+  marca,
+  color
+) {
+  const nuevaVentana = window.open("", "_blank");
+  nuevaVentana.document.write(`
+      <html>
+      <head>
+          <title>Recibo de Estacionamiento</title>
+          <style>
+              .ticket {
+                  position:relative;
+                  width: 300px;
+                  margin: 20px auto;
+                  border: 1px dashed #ccc;
+                  padding: 20px;
+              }
+
+              #folioNum{
+                  position:absolute;
+                  right:0;
+                  top:0;
+                  padding: 0.5rem;
+              }
+              .logo {
+                  text-align: center;
+                  margin-bottom: 10px;
+              }
+              .logo > p{
+                text-transform:uppercase;
+              }
+              .logo img {
+                  max-width: 130px;
+              }
+              .details {
+                  margin-bottom: 20px;
+                  text-align: center;
+              }
+              .barcode {
+                  text-align: center;
+                  margin-top: 10px; /* Espacio arriba del código de barras */
+              }
+              .barcode svg {
+                  width: 100%; /* O un ancho fijo si lo prefieres */
+                  max-width: 280px; /* Ancho máximo para evitar que se salga del ticket */
+                  height: auto; /* Altura automática para mantener la proporción */
+              }
+              .horas{
+                display:flex;
+                justify-content: space-between;
+              }
+              .horas > p {
+                  font-size: 12px;
+              }
+              .mensaje{
+                font-size:12px;
+                text-align:center;
+                text-transform:uppercase;
+              }
+              @media print {
+                  .barcode svg {
+                      width: 100%; /* Asegura el ancho completo en la impresión */
+                      max-width: 280px; /* Ancho máximo para evitar que se salga del ticket */
+                      height: auto; /* Altura automática para mantener la proporción */
+                  }
+              }
+          </style>
+      </head>
+      <body>
+          <div class="ticket">
+              <div>${folio}</div>
+              <div class="logo">
+                  <img src="${logoImg}" alt="" />
+                  <p>${negocio}</p>
+                  <small id="direccion">${direccion}</small>
+              </div>
+              <div class="details">
+                  <h5>RECIBO DE PENSIÓN</h5>
+                  <div class="horas"">
+                      <p>Entrada: ${entrada}</p>
+                      <p>Salida: ${salida}</p>
+                  </div>
+                  <div class="horas"">
+                      <p>Placa: ${marca}</p>
+                      <p>Color: ${color}</p>
+                  </div>
+                  <p>Monto: $${total}</p>
+              </div>
+              <div class="barcode">
+                  <svg id="codigoBarras"></svg>
+              </div>
+              <p class="mensaje">${mensaje}</p>
+          </div>
+      </body>
+      </html>
+  `);
+
+  nuevaVentana.document.close();
+  nuevaVentana.onload = function () {
+    JsBarcode(nuevaVentana.document.querySelector("#codigoBarras"), folio, {
+      format: "CODE128",
+      lineColor: "#808080",
+      width: 1.5,
+      height: 40,
+      displayValue: false,
+      margin: 0,
+    });
+
+    nuevaVentana.print();
+
+    setTimeout(() => {
+      nuevaVentana.close();
+    }, 500);
+  };
+}
