@@ -443,6 +443,24 @@ async function obtenerRegistrosEstacionamiento() {
     };
   });
 }
+
+async function obtenerRegistroPorIdEstacionamiento(id) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("estacionamiento", "readonly");
+    const store = transaction.objectStore("estacionamiento");
+    const request = store.get(id);  // Aquí se hace la consulta por el ID
+
+    request.onsuccess = () => {
+      resolve(request.result);  // Resuelve con el registro encontrado
+    };
+
+    request.onerror = () => {
+      reject(request.error);  // Rechaza en caso de error
+    };
+  });
+}
+
+
 async function obtenerRegistrosPension() {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("pension", "readonly");
@@ -532,14 +550,22 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
     const datosSistema = await cargarDatosSistema();
     const [infoSistema] = datosSistema.slice(-1);
 
-    console.log(infoSistema);
-
     const monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
     const fechaInicio = moment(existe.fechaEntrada);
     const minutosTranscurridos = moment
       .duration(fechaActual.diff(fechaInicio))
       .asMinutes();
     const redondearMinutos = Math.ceil(minutosTranscurridos);
+
+    if(existe.estado == "pagado"){
+      console.log("Ya esta pagado...")
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: `El folio ${existe.folio} ya esta pagado!`,
+      });
+      return
+    }
 
     // Agregar fecha de salida y monto al registro
     existe.fechaSalida = fechaActual.format("YYYY-MM-DD HH:mm:ss");
@@ -548,11 +574,16 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
 
     actualizarRegistro("estacionamiento", existe);
 
+    document
+      .querySelector("#deleteTicket")
+      .setAttribute("ticketNum", existe.id);
+    document.querySelector("#folioNum").textContent = existe.folio;
+
     document.querySelector("#negocioEstacionamiento").textContent =
       infoSistema.negocio.toUpperCase();
     document.querySelector("#logoEstacionamiento").src = `${logoImg}`;
     document.querySelector("#fechaEntrada").textContent = `${fechaInicio.format(
-      "DD/MM/YYYY h:mm:ss"
+      "DD/MM/YYYY"
     )}`;
     document.querySelector(
       "#horaEntrada"
@@ -633,11 +664,13 @@ document
       document
         .querySelector("#deleteTicket")
         .setAttribute("ticketNum", existe.id);
-      document.querySelector("#folioNum").textContent = existe.folio;
-      document.querySelector("#negocio-dos").textContent = infoSistema.negocio;
+      document.querySelector("#folioNum-dos").textContent = existe.folio;
+      document.querySelector("#negocio-dos").textContent =
+        infoSistema.negocio.toUpperCase();
       document.querySelector("#logoEstacionamiento-dos").src = `${logoImg}`;
-      document.querySelector("#fechaEntrada-dos").textContent =
-        existe.fechaLocal;
+      document.querySelector(
+        "#fechaEntrada-dos"
+      ).textContent = `${fechaInicio.format("DD/MM/YYYY")}`;
       document.querySelector(
         "#horaEntrada-dos"
       ).textContent = `Entrada: ${fechaInicio.format("hh:mm A")}`;
@@ -649,8 +682,6 @@ document
       )} minutos`;
       document.querySelector("#total-dos").textContent = `Monto: $${monto}`;
       document.querySelector(".ticketDetalle").classList.remove("d-none");
-      document.querySelector("#mensajeBoleto").textContent =
-        infoSistema.mensaje;
       JsBarcode(document.querySelector("#codigoBarras-dos"), existe.folio, {
         format: "CODE128",
         lineColor: "#000",
@@ -853,6 +884,41 @@ document.querySelector(".bloque-dos").addEventListener("click", (e) => {
     eliminarRegistro("estacionamiento", id);
   }
 });
+
+
+//------------------------------- REIMPRIMIR TICKET ESTACIONAMIENTO -----------------------------//
+document
+.querySelector(".ticketDetalle")
+.addEventListener("click", async (e) => {
+  const btnImprimir = e.target.closest(".btn-light");
+  if (btnImprimir) {
+
+    const datosSistema = await cargarDatosSistema();
+    const [infoSistema] = datosSistema.slice(-1);
+
+
+    const id = parseInt( document.querySelector("#deleteTicket").getAttribute("ticketNum"))
+    const registro = await obtenerRegistroPorIdEstacionamiento(id)
+    
+    const fechaInicio = moment(registro.fechaEntrada)
+
+    imprimirPlantilla(
+      infoSistema.negocio,
+      infoSistema.direccion,
+      fechaInicio,
+      "",
+      "",
+      "",
+      registro.folio,
+      infoSistema.mensaje,
+      registro.marca,
+      registro.color
+    );
+  }
+});
+
+
+
 
 //------------------------------- COBRO DE FOLIO PENSION -----------------------------//
 document

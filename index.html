@@ -10,8 +10,12 @@
       integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css"
+    />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="css/ticket.css" />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
@@ -34,13 +38,13 @@
         </div>
       </div>
     </nav>
-    <div class="d-flex align-items-start vh-100" id="contenedor-principal">
+    <div class="d-flex align-items-start" id="contenedor-principal">
       <div
         class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2"
         id="v-pills-tab"
         role="tablist"
         aria-orientation="vertical"
-        style="width: 250px; height: 100%"
+        style="width: 250px;"
       >
         <button
           class="nav-link active w-100"
@@ -151,7 +155,7 @@
           Sistema
         </button>
       </div>
-      <div class="tab-content w-100 mt-2 p-5 h-100" id="v-pills-tabContent">
+      <div class="tab-content mt-2 p-5" id="v-pills-tabContent">
         <div
           class="tab-pane fade show active"
           id="v-pills-home"
@@ -196,8 +200,15 @@
                 />
               </div>
               <div class="ticket d-none">
+                <div class="encab_ticket">
+                  <div id="folioNum" class="text-white"></div>
+                </div>
                 <div class="logo">
-                  <img id="logoEstacionamiento" alt="Logo" class="rounded-circle" />
+                  <img
+                    id="logoEstacionamiento"
+                    alt="Logo"
+                    class="rounded-circle"
+                  />
                   <p class="mt-2" id="negocioEstacionamiento"></p>
                 </div>
                 <div class="details">
@@ -224,11 +235,13 @@
                   placeholder="Detalle de folio..."
                 />
               </div>
-
               <div class="ticketDetalle d-none">
                 <div class="encab_ticket">
-                  <div id="folioNum"></div>
+                  <div id="folioNum-dos" class="text-white"></div>
                   <div class="eliminarTicket">
+                    <button class="btn btn-sm btn-light">
+                      <i class="fa fa-print"></i>
+                    </button>
                     <button
                       id="deleteTicket"
                       ticketNum=""
@@ -243,7 +256,11 @@
                   </div>
                 </div>
                 <div class="logo">
-                  <img id="logoEstacionamiento-dos" alt="Logo" />
+                  <img
+                    id="logoEstacionamiento-dos"
+                    class="rounded-circle"
+                    alt="Logo"
+                  />
                   <p class="mt-2" id="negocio-dos">
                     Nombre de la Empresa<br />Dirección
                   </p>
@@ -260,9 +277,6 @@
                 </div>
                 <div class="barcode">
                   <svg id="codigoBarras-dos"></svg>
-                </div>
-                <div class="mensajeTicket">
-                  <p id="mensajeBoleto"></p>
                 </div>
               </div>
             </div>
@@ -581,6 +595,7 @@
             <div class="col-md-6">
               <label class="form-label" for="mensaje">Mensaje de ticket</label>
               <textarea
+                rows="4"
                 class="form-control"
                 placeholder="Leave a comment here"
                 id="mensajeNegocio"
@@ -617,7 +632,7 @@
 
     <script src="js/jsbarcode.js"></script>
     <script src="js/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
     <script type="module" src="js/app.js"></script>
-    <script type="module" src="js/pension.js"></script>
   </body>
 </html>

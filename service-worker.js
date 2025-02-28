@@ -10,6 +10,9 @@ const ASSETS = [
   "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css",
   "https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css",
   "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js",
+  "https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css",
+  "https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js",
+
 ];
 
 // Instalación del Service Worker
