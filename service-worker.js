@@ -1,7 +1,7 @@
 const CACHE_NAME = "pwa-cache-v1";
 const ASSETS = [
   "/parking-pwa",
-  "index.html",
+  "index.php",
   "css/styles.css",
   "js/app.js",
   "js/logo.js",
