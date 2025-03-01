@@ -8,6 +8,10 @@ const tooltipList = [...tooltipTriggerList].map(
   (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
 );
 
+document.querySelector(".navbar").addEventListener("dblclick", () => {
+  document.querySelector("#reporte").removeAttribute("disabled");
+});
+
 // Abrir o crear la base de datos
 const request = indexedDB.open("Parking", 4);
 
@@ -209,12 +213,17 @@ async function configurarFormularios() {
   //------------------------------- FORMULARIO USUARIOS -----------------------------//
   document
     .getElementById("formUsuarios")
-    .addEventListener("submit", (event) => {
+    .addEventListener("submit", async (event) => {
       event.preventDefault();
-      const nombre = document.getElementById("nombre").value;
-      const perfil = document.getElementById("perfil").value;
+      const usuario = document.getElementById("nombre").value;
       const password = document.getElementById("password").value;
-      agregarRegistro("usuarios", { nombre, perfil, password });
+      const perfil = document.getElementById("perfil").value;
+      //agregarRegistro("usuarios", { usuario, password, perfil });
+      const resultado = await guardarUsuario({ usuario, password, perfil });
+      if (resultado.success) {
+        alert("Usuario guardado!");
+        document.getElementById("formUsuarios").reset();
+      }
     });
 
   //------------------------------- FORMULARIO CONFIGURACION SISTEMA -----------------------------//
@@ -448,23 +457,52 @@ async function obtenerRegistroPorIdEstacionamiento(id) {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("estacionamiento", "readonly");
     const store = transaction.objectStore("estacionamiento");
-    const request = store.get(id);  // Aquí se hace la consulta por el ID
+    const request = store.get(id); // Aquí se hace la consulta por el ID
 
     request.onsuccess = () => {
-      resolve(request.result);  // Resuelve con el registro encontrado
+      resolve(request.result); // Resuelve con el registro encontrado
     };
 
     request.onerror = () => {
-      reject(request.error);  // Rechaza en caso de error
+      reject(request.error); // Rechaza en caso de error
     };
   });
 }
-
 
 async function obtenerRegistrosPension() {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("pension", "readonly");
     const store = transaction.objectStore("pension");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+async function obtenerRegistrosServicios() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("servicios", "readonly");
+    const store = transaction.objectStore("servicios");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+async function obtenerRegistrosGastos() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("gastos", "readonly");
+    const store = transaction.objectStore("gastos");
     const request = store.getAll();
 
     request.onsuccess = () => {
@@ -506,6 +544,21 @@ async function datosTipoPension() {
     };
   });
 }
+async function datosTipoServicio() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("tiposervicios", "readonly");
+    const store = transaction.objectStore("tiposervicios");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
 
 async function cargarDatosSistema() {
   return new Promise((resolve, reject) => {
@@ -529,26 +582,22 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
   const registros = await obtenerRegistrosEstacionamiento();
 
   const fechaActual = moment();
-
   const mesActual = fechaActual.format("MMM").toUpperCase();
 
-  const foliosMesActual = registros.filter((folio) => {
-    return folio && folio.folio && folio.folio.startsWith(mesActual);
+  const foliosMesActual = registros.filter((registro) => {
+    return registro && registro.folio && registro.folio.startsWith(mesActual);
   });
 
-  const existe = foliosMesActual.filter((registro) => registro.folio == folio);
+  const existe = foliosMesActual.find((registro) => registro.folio == folio);
 
-  if (existe.length > 0) {
-    const [existe] = foliosMesActual.filter(
-      (registro) => registro.folio == folio
-    );
+  if (existe) {
     const categorias = await datosCategorias();
-    const [isCategoria] = categorias.filter(
+    const isCategoria = categorias.find(
       (categoria) => categoria.id == existe.categoria
     );
 
     const datosSistema = await cargarDatosSistema();
-    const [infoSistema] = datosSistema.slice(-1);
+    const infoSistema = datosSistema.slice(-1)[0];
 
     const monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
     const fechaInicio = moment(existe.fechaEntrada);
@@ -557,14 +606,44 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
       .asMinutes();
     const redondearMinutos = Math.ceil(minutosTranscurridos);
 
-    if(existe.estado == "pagado"){
-      console.log("Ya esta pagado...")
+    if (existe.estado == "pagado") {
+      console.log("Ya está pagado...");
+
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: `El folio ${existe.folio} ya esta pagado!`,
+        text: `El folio ${existe.folio} ya está pagado!`,
+        footer:
+          '<a href="#!" id="cerrarAlerta">¿Quieres imprimir ticket de cobro?</a>',
+        didOpen: () => {
+          document
+            .getElementById("cerrarAlerta")
+            .addEventListener("click", function () {
+              Swal.close();
+              const fechaActual = moment(existe.fechaSalida);
+              const minutosTranscurridos = moment
+                .duration(fechaActual.diff(fechaInicio))
+                .asMinutes();
+              const redondearMinutos = Math.ceil(minutosTranscurridos);
+              setTimeout(() => {
+                imprimirPlantilla(
+                  infoSistema.negocio,
+                  infoSistema.direccion,
+                  fechaInicio,
+                  fechaActual.format("hh:mm A"),
+                  redondearMinutos,
+                  existe.monto,
+                  existe.folio,
+                  "Gracias por su preferencia!",
+                  existe.placa,
+                  existe.color
+                );
+              }, 1000);
+            });
+        },
       });
-      return
+
+      return;
     }
 
     // Agregar fecha de salida y monto al registro
@@ -578,7 +657,6 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
       .querySelector("#deleteTicket")
       .setAttribute("ticketNum", existe.id);
     document.querySelector("#folioNum").textContent = existe.folio;
-
     document.querySelector("#negocioEstacionamiento").textContent =
       infoSistema.negocio.toUpperCase();
     document.querySelector("#logoEstacionamiento").src = `${logoImg}`;
@@ -596,6 +674,7 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
     )} minutos`;
     document.querySelector("#total").textContent = `Monto: $${monto}`;
     document.querySelector(".ticket").classList.remove("d-none");
+
     JsBarcode(document.querySelector("#codigoBarras"), existe.folio, {
       format: "CODE128",
       lineColor: "#000",
@@ -630,7 +709,7 @@ document
     const folio = this.value.trim();
     const registros = await obtenerRegistrosEstacionamiento();
 
-    const fechaActual = moment();
+    let fechaActual = moment();
 
     const mesActual = fechaActual.format("MMM").toUpperCase();
 
@@ -654,12 +733,25 @@ document
         (categoria) => categoria.id == existe.categoria
       );
 
-      const monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
+      let monto = calcularCostoTotal(existe.fechaEntrada, isCategoria);
       const fechaInicio = moment(existe.fechaEntrada);
 
-      const minutosTranscurridos = moment
+      let minutosTranscurridos = moment
         .duration(fechaActual.diff(fechaInicio))
         .asMinutes();
+
+      if (existe.estado === "pagado") {
+        fechaActual = moment(existe.fechaSalida);
+        monto = existe.monto;
+        minutosTranscurridos = moment
+          .duration(fechaActual.diff(fechaInicio))
+          .asMinutes();
+
+        document.querySelector("#estadoPago").classList.remove("d-none");
+        console.log("Pagado...");
+      } else {
+        document.querySelector("#estadoPago").classList.add("d-none");
+      }
 
       document
         .querySelector("#deleteTicket")
@@ -885,40 +977,36 @@ document.querySelector(".bloque-dos").addEventListener("click", (e) => {
   }
 });
 
-
 //------------------------------- REIMPRIMIR TICKET ESTACIONAMIENTO -----------------------------//
 document
-.querySelector(".ticketDetalle")
-.addEventListener("click", async (e) => {
-  const btnImprimir = e.target.closest(".btn-light");
-  if (btnImprimir) {
+  .querySelector(".ticketDetalle")
+  .addEventListener("click", async (e) => {
+    const btnImprimir = e.target.closest(".btn-light");
+    if (btnImprimir) {
+      const datosSistema = await cargarDatosSistema();
+      const [infoSistema] = datosSistema.slice(-1);
 
-    const datosSistema = await cargarDatosSistema();
-    const [infoSistema] = datosSistema.slice(-1);
+      const id = parseInt(
+        document.querySelector("#deleteTicket").getAttribute("ticketNum")
+      );
+      const registro = await obtenerRegistroPorIdEstacionamiento(id);
 
+      const fechaInicio = moment(registro.fechaEntrada);
 
-    const id = parseInt( document.querySelector("#deleteTicket").getAttribute("ticketNum"))
-    const registro = await obtenerRegistroPorIdEstacionamiento(id)
-    
-    const fechaInicio = moment(registro.fechaEntrada)
-
-    imprimirPlantilla(
-      infoSistema.negocio,
-      infoSistema.direccion,
-      fechaInicio,
-      "",
-      "",
-      "",
-      registro.folio,
-      infoSistema.mensaje,
-      registro.marca,
-      registro.color
-    );
-  }
-});
-
-
-
+      imprimirPlantilla(
+        infoSistema.negocio,
+        infoSistema.direccion,
+        fechaInicio,
+        "",
+        "",
+        "",
+        registro.folio,
+        infoSistema.mensaje,
+        registro.marca,
+        registro.color
+      );
+    }
+  });
 
 //------------------------------- COBRO DE FOLIO PENSION -----------------------------//
 document
@@ -1117,4 +1205,235 @@ function imprimirPlantillaPension(
       nuevaVentana.close();
     }, 500);
   };
+}
+
+//------------------------------- GENERAR REPORTE Y BACKUP -----------------------------//
+
+document.querySelector("#reporte").addEventListener("click", async () => {
+  const registrosEstacionamiento = await obtenerRegistrosEstacionamiento();
+  const registrosPensiones = await obtenerRegistrosPension();
+  const tipoPensiones = await datosTipoPension();
+  const registrosServicios = await obtenerRegistrosServicios();
+  const tipoServicios = await datosTipoServicio();
+  const registrosGastos = await obtenerRegistrosGastos();
+
+  const totalEstacionamiento = registrosEstacionamiento.reduce(
+    (total, item) => total + (item.monto || 0),
+    0
+  );
+
+  const totalPension = registrosPensiones.reduce((acc, registro) => {
+    const pension = tipoPensiones.find(
+      (pension) => pension.id == registro.tipo
+    );
+    if (pension) {
+      acc += parseFloat(pension.precio);
+    }
+
+    return acc;
+  }, 0);
+
+  const totalServicio = registrosServicios.reduce((acc, registro) => {
+    const servicio = tipoServicios.find(
+      (servicio) => servicio.id == registro.tipo
+    );
+    if (servicio) {
+      acc +=
+        parseFloat(servicio.precioServicio) * parseFloat(registro.cantidad);
+    }
+
+    return acc;
+  }, 0);
+
+  const totalGastos = registrosGastos.reduce(
+    (total, item) => total + (parseFloat(item.cantidad) || 0),
+    0
+  );
+
+  if (navigator.onLine) {
+    const respaldo = await backup(
+      registrosEstacionamiento,
+      registrosPensiones,
+      registrosServicios,
+      registrosGastos
+    );
+
+    if (respaldo.success) {
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Respaldo Guardado!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      setTimeout(() => {
+        abrirVentanaReporte(
+          totalEstacionamiento,
+          totalGastos,
+          totalPension,
+          totalServicio
+        );
+      }, 2000);
+    }
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "No tienes conexión a internet, intentalo mas tarde!",
+    });
+  }
+});
+
+//------------------------------- VENTANA DE REPORTE -----------------------------//
+function abrirVentanaReporte(
+  totalEstacionamiento,
+  totalGastos,
+  totalPensiones,
+  totalServicios
+) {
+  const ventana = window.open("", "_blank", "width=800,height=600");
+  ventana.document.write(`
+    <html>
+      <head>
+        <title>Reporte de Estacionamiento</title>
+        <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            width: 80%;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+          }
+          .header {
+            font-size: 24px;
+            color: #ff8c00;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ff8c00;
+            padding-bottom: 10px;
+          }
+          .list-item {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            margin: 10px 0;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+          }
+          .list-item span {
+            font-weight: bold;
+            color: #333;
+          }
+          .total {
+            background-color: #28a745;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+          }
+          .total .value {
+            color: #ffdd57;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">Reporte General</div>
+
+          <div class="list-item">
+            <span>Total Estacionamiento:</span>
+            <span>$${totalEstacionamiento}</span>
+          </div>
+
+          <div class="list-item">
+            <span>Total Gastos:</span>
+            <span>$${totalGastos}</span>
+          </div>
+
+          <div class="list-item">
+            <span>Total Pensiones:</span>
+            <span>$${totalPensiones}</span>
+          </div>
+
+          <div class="list-item">
+            <span>Total Servicios:</span>
+            <span>$${totalServicios}</span>
+          </div>
+
+          <div class="total">
+            <span>Total General: </span>
+            <span class="value">$${
+              totalEstacionamiento +
+              totalGastos +
+              totalPensiones +
+              totalServicios
+            }</span>
+          </div>
+        </div>
+      </body>
+    </html>
+  `);
+  ventana.document.close();
+  ventana.print();
+}
+
+//------------------------------- REALIZAR RESPALDO -----------------------------//
+async function backup(
+  registrosEstacionamiento,
+  registrosPensiones,
+  registrosServicios,
+  registrosGastos
+) {
+  try {
+    const respuesta = await fetch(
+      "app/controladores/ParkingController.php?action=guardar",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          estacionamiento: registrosEstacionamiento,
+          pensiones: registrosPensiones,
+          servicios: registrosServicios,
+          gastos: registrosGastos,
+        }),
+
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    return await respuesta.json();
+  } catch (error) {
+    console.log("Error en la peticion: " + error);
+  }
+}
+
+//------------------------------- GUARDAR USUARIO -----------------------------//
+
+async function guardarUsuario(usuario) {
+  try {
+    const respuesta = await fetch(
+      "app/controladores/UsuarioController.php?action=guardar",
+      {
+        method: "POST",
+        body: JSON.stringify(usuario),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return await respuesta.json();
+  } catch (error) {
+    console.log("Error en la peticion: " + error);
+  }
 }

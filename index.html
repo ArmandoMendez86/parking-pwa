@@ -15,7 +15,10 @@
       href="https://cdn.jsdelivr.net/npm/fontawesome-4.7@4.7.0/css/font-awesome.min.css"
     />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css"
+    />
     <link rel="stylesheet" href="css/ticket.css" />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
@@ -34,7 +37,9 @@
           CONTROL DE ESTACIONAMIENTO V.1
         </a>
         <div>
-          <button class="btn btn-danger rounded-circle">X</button>
+          <button class="btn btn-danger rounded-circle">
+            <i class="fa fa-sign-out" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
     </nav>
@@ -44,7 +49,7 @@
         id="v-pills-tab"
         role="tablist"
         aria-orientation="vertical"
-        style="width: 250px;"
+        style="width: 300px"
       >
         <button
           class="nav-link active w-100"
@@ -106,7 +111,7 @@
         >
           Gastos
         </button>
-        <button
+        <!-- <button
           class="nav-link w-100"
           id="v-pills-panel-tab"
           data-bs-toggle="pill"
@@ -117,7 +122,7 @@
           aria-selected="false"
         >
           Panel
-        </button>
+        </button> -->
         <button
           class="nav-link w-100"
           id="v-pills-precios-tab"
@@ -154,8 +159,10 @@
         >
           Sistema
         </button>
+
+        <button id="reporte" class="btn btn-danger mt-auto" disabled>Generar</button>
       </div>
-      <div class="tab-content mt-2 p-5" id="v-pills-tabContent">
+      <div class="tab-content mt-2 p-5 w-100" id="v-pills-tabContent">
         <div
           class="tab-pane fade show active"
           id="v-pills-home"
@@ -190,6 +197,7 @@
           <!-- Mostrando detalles del ticket -->
 
           <div class="contenedor-tickets mt-5">
+            <!-- COBRO DE FOLIO ESTACIONAMIENTO -->
             <div class="bloque-uno">
               <div class="col-6 mx-auto">
                 <input
@@ -226,20 +234,27 @@
                 </div>
               </div>
             </div>
+            <!-- CONSULTA DE FOLIO ESTACIONAMIENTO -->
             <div class="bloque-dos">
               <div class="col-6 mx-auto">
                 <input
                   type="text"
                   class="form-control text-center"
                   id="buscarFolio"
-                  placeholder="Detalle de folio..."
+                  placeholder="Consulta el folio..."
                 />
               </div>
               <div class="ticketDetalle d-none">
+                <p id="estadoPago" class="d-none">Pagado</p>
                 <div class="encab_ticket">
                   <div id="folioNum-dos" class="text-white"></div>
                   <div class="eliminarTicket">
-                    <button class="btn btn-sm btn-light">
+                    <button
+                      class="btn btn-sm btn-light"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Reimprimir ticket entrada"
+                    >
                       <i class="fa fa-print"></i>
                     </button>
                     <button
@@ -441,15 +456,14 @@
             </div>
           </form>
         </div>
-        <div
+        <!-- <div
           class="tab-pane fade"
           id="v-pills-panel"
           role="tabpanel"
           aria-labelledby="v-pills-panel-tab"
           tabindex="0"
         >
-          Panel
-        </div>
+        </div> -->
         <div
           class="tab-pane fade"
           id="v-pills-precios"
@@ -559,7 +573,10 @@
             </div>
             <div class="col-md-6">
               <label for="perfil" class="form-label">Perfil</label>
-              <input type="text" class="form-control" id="perfil" />
+              <select id="perfil" class="form-control">
+                <option value="admin">Administrador</option>
+                <option value="recepcion">Recepción</option>
+              </select>
             </div>
             <div class="col-md-12">
               <label for="password" class="form-label">Password</label>
@@ -595,7 +612,7 @@
             <div class="col-md-6">
               <label class="form-label" for="mensaje">Mensaje de ticket</label>
               <textarea
-                rows="4"
+                rows="6"
                 class="form-control"
                 placeholder="Leave a comment here"
                 id="mensajeNegocio"
