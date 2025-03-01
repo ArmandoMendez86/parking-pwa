@@ -7,8 +7,24 @@
 
     <style>
       body {
-        background: #007bff;
-        background: linear-gradient(to right, #0062e6, #33aeff);
+        height: 100vh;
+       background-color: #000 !important;
+        display: flex;
+        align-items: center;
+      }
+
+      .row{
+        opacity: 0.6;
+        background-image: url(img/fondo.jpg);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        border-radius: 0.5rem;
+        height: 60vh !important;
+      }
+
+      .card{
+        background-color:#ffffff45 !important;
       }
 
       .btn-login {
@@ -49,7 +65,7 @@
         <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
           <div class="card border-0 shadow rounded-3 my-5">
             <div class="card-body p-4 p-sm-5">
-              <h5 class="card-title text-center mb-5 fw-light fs-5">
+              <h5 class="card-title text-center mb-5 fw-light fs-5 text-white">
                 A c c e s o
               </h5>
               <form id="formLogin">

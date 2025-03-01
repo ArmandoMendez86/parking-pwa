@@ -3,7 +3,7 @@ const ASSETS = [
   "/parking-pwa",
   "index.php",
   "css/styles.css",
-  "js/app.js",
+  "js/appcomp.min.js",
   "js/logo.js",
   "js/jsbarcode.js",
   "js/moment.js",

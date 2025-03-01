@@ -1,6 +1,6 @@
 <?php
 session_start();
-if(!$_SESSION['iniciarSesion'])
+if (!$_SESSION['iniciarSesion'])
   header("Location: login.html");
 ?>
 
@@ -28,27 +28,33 @@ if(!$_SESSION['iniciarSesion'])
 </head>
 
 <body>
-  <nav class="navbar">
+  <nav class="navbar w-100">
     <div class="container-fluid">
       <a class="navbar-brand text-white" href="#">
         <img
           src="img/logo.jpg"
           alt="Logo"
-          width="150"
-          height="50"
-          class="d-inline-block align-text-top" />
+          width="80"
+          height="80"
+          class="d-inline-block align-text-top rounded-circle" />
         CONTROL DE ESTACIONAMIENTO V.1
       </a>
       <div>
-        <button class="btn btn-danger rounded-circle">
-         <a href="app/controladores/logout.php"> <i class="fa fa-sign-out" aria-hidden="true"></i></a>
-        </button>
+        <a href="app/controladores/logout.php">
+          <button
+            class="btn btn-danger rounded-circle"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-title="Salir del sistema">
+            <i class="fa fa-sign-out" aria-hidden="true"></i>
+          </button>
+        </a>
       </div>
     </div>
   </nav>
-  <div class="d-flex align-items-start" id="contenedor-principal">
+  <div class="d-flex align-items-start h-100" id="contenedor-principal">
     <div
-      class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2"
+      class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2 h-100"
       id="v-pills-tab"
       role="tablist"
       aria-orientation="vertical"
@@ -157,9 +163,9 @@ if(!$_SESSION['iniciarSesion'])
         Sistema
       </button>
 
-      <button id="reporte" class="btn btn-danger mt-auto" disabled>Generar</button>
+      <button id="reporte" class="btn btn-light mt-auto" disabled>Reporte</button>
     </div>
-    <div class="tab-content mt-2 p-5 w-100" id="v-pills-tabContent">
+    <div class="tab-content mt-2 p-5 w-100 h-100" id="v-pills-tabContent">
       <div
         class="tab-pane fade show active"
         id="v-pills-home"
