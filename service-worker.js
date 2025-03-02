@@ -3,6 +3,8 @@ const ASSETS = [
   "/parking-pwa/",
   "/parking-pwa/index.php",
   "/parking-pwa/css/styles.css",
+  "/parking-pwa/css/ticket.css",
+  "/parking-pwa/img/logo.jpg",
   "/parking-pwa/js/app.js",
   "/parking-pwa/js/logo.js",
   "/parking-pwa/js/lib/jsbarcode.js",
