@@ -13,7 +13,7 @@ document.querySelector(".navbar").addEventListener("dblclick", () => {
 });
 
 // Abrir o crear la base de datos
-const request = indexedDB.open("Parking", 4);
+const request = indexedDB.open("Parking", 1);
 
 request.onupgradeneeded = (event) => {
   db = event.target.result;
