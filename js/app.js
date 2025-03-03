@@ -407,7 +407,7 @@ async function configuracionSistema() {
   return informacion;
 }
 
-//--------------------------------- NUMERO DE FOLIO --------------------------------//
+//--------------------------------- GENERAR NUMERO DE FOLIO --------------------------------//
 
 function generarFolio(ultimosFolios) {
   const fechaActual = new Date();
@@ -607,8 +607,6 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
     const redondearMinutos = Math.ceil(minutosTranscurridos);
 
     if (existe.estado == "pagado") {
-      console.log("Ya está pagado...");
-
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -642,7 +640,15 @@ document.querySelector("#folio").addEventListener("input", async function (e) {
             });
         },
       });
+      return;
+    }
 
+    if (existe.estado == "cancelado") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: `El folio ${existe.folio} esta cancelado!`,
+      });
       return;
     }
 
@@ -740,7 +746,7 @@ document
         .duration(fechaActual.diff(fechaInicio))
         .asMinutes();
 
-      if (existe.estado === "pagado") {
+      if (existe.estado === "pagado" || existe.estado === "cancelado") {
         fechaActual = moment(existe.fechaSalida);
         monto = existe.monto;
         minutosTranscurridos = moment
@@ -748,7 +754,7 @@ document
           .asMinutes();
 
         document.querySelector("#estadoPago").classList.remove("d-none");
-        console.log("Pagado...");
+        document.querySelector("#estadoPago").textContent = existe.estado;
       } else {
         document.querySelector("#estadoPago").classList.add("d-none");
       }
@@ -967,9 +973,20 @@ function imprimirPlantilla(
   };
 }
 
-//------------------------------- ELIMINAR FOLIO ESTACIONAMIENTO -----------------------------//
-document.querySelector(".bloque-dos").addEventListener("click", (e) => {
-  if (e.target.classList.contains("btn-danger")) {
+//------------------------------- CANCELAR, ELIMINAR, FOLIO ESTACIONAMIENTO -----------------------------//
+document.querySelector(".bloque-dos").addEventListener("click", async (e) => {
+  let btnCancelar = e.target.closest(".cancelarTicket");
+  let btnEliminar = e.target.closest(".deletTicket");
+  if (btnCancelar) {
+    const id = parseInt(
+      document.querySelector("#deleteTicket").getAttribute("ticketNum")
+    );
+    const registro = await obtenerRegistroPorIdEstacionamiento(id);
+    registro.estado = "cancelado";
+    actualizarRegistro("estacionamiento", registro);
+  }
+
+  if (btnEliminar) {
     const id = parseInt(
       document.querySelector("#deleteTicket").getAttribute("ticketNum")
     );
@@ -981,7 +998,7 @@ document.querySelector(".bloque-dos").addEventListener("click", (e) => {
 document
   .querySelector(".ticketDetalle")
   .addEventListener("click", async (e) => {
-    const btnImprimir = e.target.closest(".btn-light");
+    const btnImprimir = e.target.closest(".reimprimir");
     if (btnImprimir) {
       const datosSistema = await cargarDatosSistema();
       const [infoSistema] = datosSistema.slice(-1);
@@ -1218,9 +1235,10 @@ document.querySelector("#reporte").addEventListener("click", async () => {
   const registrosGastos = await obtenerRegistrosGastos();
 
   const totalEstacionamiento = registrosEstacionamiento.reduce(
-    (total, item) => total + (item.monto || 0),
+    (total, item) => item.estado === "pagado" ? total + (item.monto || 0) : total,
     0
   );
+  
 
   const totalPension = registrosPensiones.reduce((acc, registro) => {
     const pension = tipoPensiones.find(
@@ -1378,9 +1396,9 @@ function abrirVentanaReporte(
             <span>Total General: </span>
             <span class="value">$${
               totalEstacionamiento +
-              totalGastos +
               totalPensiones +
-              totalServicios
+              totalServicios -
+              totalGastos
             }</span>
           </div>
         </div>

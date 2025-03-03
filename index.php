@@ -20,6 +20,7 @@ if (!$_SESSION['iniciarSesion'])
 </head>
 
 <body>
+  <!-- NAVBAR -->
   <nav class="navbar w-100">
     <div class="container-fluid">
       <a class="navbar-brand text-white" href="#">
@@ -28,25 +29,23 @@ if (!$_SESSION['iniciarSesion'])
           alt="Logo"
           width="80"
           height="80"
-          class="d-inline-block align-text-top rounded-circle" />
-        CONTROL DE ESTACIONAMIENTO V.1
+          class="d-inline-block align-text-center rounded-circle" />
+        SOFT PARKING V.1
       </a>
       <div>
-        <a href="app/controladores/logout.php">
-          <button
-            class="btn btn-danger rounded-circle"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            data-bs-title="Salir del sistema">
-            <i class="fa fa-sign-out" aria-hidden="true"></i>
-          </button>
+        <a href="app/controladores/logout.php" data-bs-toggle="tooltip"
+          data-bs-placement="top"
+          data-bs-title="Salir del sistema"
+          class="text-white">
+          <i class="fa fa-2x fa-sign-out" aria-hidden="true"></i>
         </a>
       </div>
     </div>
   </nav>
-  <div class="d-flex align-items-start h-100" id="contenedor-principal">
+  <!-- CONTENIDO -->
+  <div class="d-flex" id="contenedor-principal">
     <div
-      class="nav flex-column nav-pills me-2 align-items-center mt-2 p-2 h-100"
+      class="nav flex-column nav-pills me-1 align-items-center mt-1 p-2"
       id="v-pills-tab"
       role="tablist"
       aria-orientation="vertical"
@@ -60,7 +59,7 @@ if (!$_SESSION['iniciarSesion'])
         role="tab"
         aria-controls="v-pills-home"
         aria-selected="true">
-        Estacionamiento
+        ESTACIONAR
       </button>
       <button
         class="nav-link w-100"
@@ -71,7 +70,7 @@ if (!$_SESSION['iniciarSesion'])
         role="tab"
         aria-controls="v-pills-profile"
         aria-selected="false">
-        Pension
+        PENSIÓN
       </button>
       <button
         class="nav-link w-100"
@@ -82,7 +81,7 @@ if (!$_SESSION['iniciarSesion'])
         role="tab"
         aria-controls="v-pills-disabled"
         aria-selected="false">
-        Clientes
+        CLIENTE
       </button>
       <button
         class="nav-link w-100"
@@ -93,7 +92,7 @@ if (!$_SESSION['iniciarSesion'])
         role="tab"
         aria-controls="v-pills-messages"
         aria-selected="false">
-        Servicios
+        SERVICIO
       </button>
       <button
         class="nav-link w-100"
@@ -104,7 +103,7 @@ if (!$_SESSION['iniciarSesion'])
         role="tab"
         aria-controls="v-pills-settings"
         aria-selected="false">
-        Gastos
+        GASTO
       </button>
       <!-- <button
           class="nav-link w-100"
@@ -128,7 +127,7 @@ if (!$_SESSION['iniciarSesion'])
           role="tab"
           aria-controls="v-pills-precios"
           aria-selected="false">
-          Precios
+          PRECIO
         </button>
         <button
           class="nav-link w-100"
@@ -139,7 +138,7 @@ if (!$_SESSION['iniciarSesion'])
           role="tab"
           aria-controls="v-pills-usuarios"
           aria-selected="false">
-          Usuarios
+          USUARIO
         </button>
       <?php endif   ?>
 
@@ -152,12 +151,17 @@ if (!$_SESSION['iniciarSesion'])
         role="tab"
         aria-controls="v-pills-sistema"
         aria-selected="false">
-        Sistema
+        CONFIGURACIÓN
       </button>
 
-      <button id="reporte" class="btn btn-light mt-auto" disabled>Reporte</button>
+      <button id="reporte"
+        class="btn btn-light mt-5"
+        disabled
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-title="Generar reporte"><i class="fa fa-book" aria-hidden="true"></i></button>
     </div>
-    <div class="tab-content mt-2 p-5 w-100 h-100" id="v-pills-tabContent">
+    <div class="tab-content mt-1 p-2 w-100" id="v-pills-tabContent">
       <div
         class="tab-pane fade show active"
         id="v-pills-home"
@@ -165,32 +169,31 @@ if (!$_SESSION['iniciarSesion'])
         aria-labelledby="v-pills-home-tab"
         tabindex="0">
         <!-- Vista de estacionamiento -->
-        <form class="row g-3" id="formEstacionamiento">
-          <h4 class="text-center">Registrar Estacionamiento</h4>
-          <div class="col-md-6">
+        <h4 class="text-center">Estacionamiento</h4>
+
+        <form class="flex-grow-1 row g-2" id="formEstacionamiento">
+          <div class="col-6">
             <label for="placaE" class="form-label">Placas</label>
             <input type="text" class="form-control" id="placaE" />
           </div>
-          <div class="col-md-6">
+          <div class="col-6">
             <label for="categoria" class="form-label">Categoria</label>
             <select class="form-control" id="categoria"></select>
           </div>
-          <div class="col-md-6">
+          <div class="col-6">
             <label for="marcaE" class="form-label">Marca</label>
             <input type="text" class="form-control" id="marcaE" />
           </div>
-          <div class="col-md-6">
+          <div class="col-6">
             <label for="colorE" class="form-label">Color</label>
             <input type="text" class="form-control" id="colorE" />
           </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+          <div class="w-auto">
+            <button type="submit" class="btn btn-secondary mt-2">Registrar</button>
           </div>
         </form>
-
         <!-- Mostrando detalles del ticket -->
-
-        <div class="contenedor-tickets mt-5">
+        <div class="contenedor-tickets flex-grow-1 d-flex gap-2 mt-3">
           <!-- COBRO DE FOLIO ESTACIONAMIENTO -->
           <div class="bloque-uno">
             <div class="col-6 mx-auto">
@@ -236,27 +239,29 @@ if (!$_SESSION['iniciarSesion'])
                 placeholder="Consulta el folio..." />
             </div>
             <div class="ticketDetalle d-none">
-              <p id="estadoPago" class="d-none">Pagado</p>
+              <p id="estadoPago" class="d-none"></p>
               <div class="encab_ticket">
                 <div id="folioNum-dos" class="text-white"></div>
                 <div class="eliminarTicket">
-                  <button
-                    class="btn btn-sm btn-light"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    data-bs-title="Reimprimir ticket entrada">
-                    <i class="fa fa-print"></i>
-                  </button>
-                  <button
-                    id="deleteTicket"
-                    ticketNum=""
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    data-bs-title="Eliminar ticket">
-                    X
-                  </button>
+                  <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
+                    <button type="button"
+                      class="btn btn-light cancelarTicket"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Cancelar ticket"><i class="fa fa-ban" aria-hidden="true"></i></button>
+                    <button type="button"
+                      class="btn btn-light reimprimir"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Reimprimir ticket entrada"><i class="fa fa-print"></i></button>
+                    <button type="button"
+                      id="deleteTicket"
+                      ticketNum=""
+                      class="btn btn-light deletTicket"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Eliminar ticket"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                  </div>
                 </div>
               </div>
               <div class="logo">
@@ -264,9 +269,7 @@ if (!$_SESSION['iniciarSesion'])
                   id="logoEstacionamiento-dos"
                   class="rounded-circle"
                   alt="Logo" />
-                <p class="mt-2" id="negocio-dos">
-                  Nombre de la Empresa<br />Dirección
-                </p>
+                <p class="mt-2" id="negocio-dos"></p>
               </div>
               <div class="details">
                 <h6 class="text-center">RECIBO DE ESTACIONAMIENTO</h6>
@@ -284,6 +287,7 @@ if (!$_SESSION['iniciarSesion'])
             </div>
           </div>
         </div>
+
       </div>
       <div
         class="tab-pane fade"
@@ -293,7 +297,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de pension -->
         <form class="row g-3" id="formPension">
-          <h4 class="text-center">Registrar Pensión</h4>
+          <h4 class="text-center">Pensión</h4>
           <div class="col-md-6">
             <label for="cliente" class="form-label">Cliente</label>
             <select name="" id="cliente" class="form-control"></select>
@@ -311,7 +315,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="text" class="form-control" id="color" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
         <div class="d-flex justify-content-center mt-5 impresionTicket">
@@ -367,7 +371,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de clientes -->
         <form class="row g-3" id="formClientes">
-          <h4 class="text-center">Registrar Cliente</h4>
+          <h4 class="text-center">Cliente</h4>
           <div class="col-md-6">
             <label for="nombreC" class="form-label">Nombre</label>
             <input type="text" class="form-control" id="nombreC" />
@@ -377,7 +381,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="text" class="form-control" id="telefonoC" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
       </div>
@@ -389,7 +393,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de servicios -->
         <form class="row g-3" id="formServicios">
-          <h4 class="text-center">Venta de Servicio</h4>
+          <h4 class="text-center">Servicios</h4>
           <div class="col-md-6">
             <label for="servicio" class="form-label">Servicio</label>
             <select id="servicio" class="form-control"></select>
@@ -404,7 +408,7 @@ if (!$_SESSION['iniciarSesion'])
               id="cantidadServicio" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
       </div>
@@ -416,7 +420,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de gastos -->
         <form class="row g-3" id="formGastos">
-          <h4 class="text-center">Registrar Gasto</h4>
+          <h4 class="text-center">Gastos</h4>
           <div class="col-md-6">
             <label for="concepto" class="form-label">Concepto</label>
             <input type="text" class="form-control" id="concepto" />
@@ -432,7 +436,7 @@ if (!$_SESSION['iniciarSesion'])
               id="cantidadGasto" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
       </div>
@@ -496,7 +500,7 @@ if (!$_SESSION['iniciarSesion'])
               id="maximo" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
         <!-- Precios Pension -->
@@ -511,7 +515,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="number" class="form-control" id="precioPension" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
         <!-- Precios Servicios -->
@@ -526,7 +530,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="number" class="form-control" id="precioServicio" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
       </div>
@@ -555,7 +559,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="password" class="form-control" id="password" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
       </div>
@@ -589,7 +593,7 @@ if (!$_SESSION['iniciarSesion'])
               id="mensajeNegocio"></textarea>
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Registrar</button>
           </div>
         </form>
       </div>
