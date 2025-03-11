@@ -20,7 +20,7 @@ class LoginController
             session_start();
             $_SESSION["iniciarSesion"] = "ok";
             $_SESSION["id"] = $respuesta[0]["id"];
-            $_SESSION["usuario"] = $respuesta[0]["usuario"];
+            $_SESSION["nombre"] = $respuesta[0]["nombre"];
             $_SESSION["perfil"] = $respuesta[0]["perfil"];
 
             echo json_encode(['success' => true]);

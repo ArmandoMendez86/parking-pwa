@@ -1,5 +1,5 @@
 const CACHE_NAME = "pwa-cache";
-/* const ASSETS = [
+const ASSETS = [
   "/parking-pwa/",
   "/parking-pwa/index.php",
   "/parking-pwa/css/styles.css",
@@ -19,9 +19,9 @@ const CACHE_NAME = "pwa-cache";
   "/parking-pwa/js/lib/fonts/fontawesome-webfont.woff",
   "/parking-pwa/js/lib/fonts/fontawesome-webfont.woff2",
   "/parking-pwa/js/lib/fonts/fontawesome.otf",
-]; */
+];
 
-const ASSETS = [
+/* const ASSETS = [
   "/",
   "/index.php",
   "/css/styles.css",
@@ -41,7 +41,7 @@ const ASSETS = [
   "/js/lib/fonts/fontawesome-webfont.woff",
   "/js/lib/fonts/fontawesome-webfont.woff2",
   "/js/lib/fonts/fontawesome.otf",
-];
+]; */
 
 // Instalación del Service Worker
 self.addEventListener("install", (event) => {

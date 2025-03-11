@@ -1,10 +1,10 @@
 <?php
 class Conexion
 {
-    /* private static $host = "localhost";
+   /*  private static $host = "localhost";
     private static $dbname = "parking";
     private static $usuario = "root"; 
-    private static $password = "linux"; */ 
+    private static $password = "linux";  */
     private static $host = "localhost";
     private static $dbname = "u916760597_parkin_pwa";
     private static $usuario = "u916760597_parkin_pwa"; 

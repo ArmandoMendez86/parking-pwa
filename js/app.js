@@ -179,9 +179,10 @@ async function configurarFormularios() {
     .getElementById("formServicios")
     .addEventListener("submit", (event) => {
       event.preventDefault();
+      const fecha = moment().format("YYYY-MM-DD HH:mm:ss");
       const tipo = document.getElementById("servicio").value;
       const cantidad = document.getElementById("cantidadServicio").value;
-      agregarRegistro("servicios", { tipo, cantidad });
+      agregarRegistro("servicios", { tipo, cantidad, fecha });
     });
 
   //------------------------------- FORMULARIO GASTOS -----------------------------//
@@ -503,6 +504,21 @@ async function obtenerRegistrosGastos() {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction("gastos", "readonly");
     const store = transaction.objectStore("gastos");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
+}
+async function datosClientes() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("clientes", "readonly");
+    const store = transaction.objectStore("clientes");
     const request = store.getAll();
 
     request.onsuccess = () => {
@@ -1234,11 +1250,52 @@ document.querySelector("#reporte").addEventListener("click", async () => {
   const tipoServicios = await datosTipoServicio();
   const registrosGastos = await obtenerRegistrosGastos();
 
+  const categorias = await datosCategorias();
+  const clientes = await datosClientes();
+
+  const estacionamientoBackup = registrosEstacionamiento.map((item) => {
+    const auto = categorias.find((categoria) => categoria.id == item.categoria);
+    return {
+      categoria: auto.categoria,
+      placa: item.placa,
+      color: item.color,
+      marca: item.marca,
+      estado: item.estado,
+      folio: item.folio,
+      fechaEntrada: item.fechaEntrada,
+      fechaSalida: item.fechaSalida,
+      monto: item.monto,
+    };
+  });
+  const pensionBackup = registrosPensiones.map((item) => {
+    const cliente = clientes.find((cliente) => cliente.id == item.cliente);
+    const pension = tipoPensiones.find((pension) => pension.id == item.tipo);
+    return {
+      cliente: cliente.nombre,
+      pension: pension.pension,
+      color: item.color,
+      marca: item.marca,
+      precio: pension.precio,
+      folio: item.folio,
+      fechaEntrada: item.fechaEntrada,
+    };
+  });
+
+  const serviciosBackup = registrosServicios.map((item) => {
+    const tipo = tipoServicios.find((servicio) => servicio.id == item.tipo);
+    return {
+      servicio: tipo.tipoServicio,
+      cantidad: item.cantidad,
+      fecha: item.fecha,
+    };
+  });
+
+
   const totalEstacionamiento = registrosEstacionamiento.reduce(
-    (total, item) => item.estado === "pagado" ? total + (item.monto || 0) : total,
+    (total, item) =>
+      item.estado === "pagado" ? total + (item.monto || 0) : total,
     0
   );
-  
 
   const totalPension = registrosPensiones.reduce((acc, registro) => {
     const pension = tipoPensiones.find(
@@ -1270,9 +1327,9 @@ document.querySelector("#reporte").addEventListener("click", async () => {
 
   if (navigator.onLine) {
     const respaldo = await backup(
-      registrosEstacionamiento,
-      registrosPensiones,
-      registrosServicios,
+      estacionamientoBackup,
+      pensionBackup,
+      serviciosBackup,
       registrosGastos
     );
 

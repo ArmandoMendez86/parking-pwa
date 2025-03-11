@@ -18,9 +18,10 @@ class Parking
 
     public function agregar($concepto, $informacion)
     {
-        $query = "INSERT INTO registros (concepto, informacion) VALUES (?, ?)";
+        $fecha = date('Y-m-d');
+        $query = "INSERT INTO backup (concepto, informacion, fecha) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$concepto, $informacion]);
+        $stmt->execute([$concepto, $informacion, $fecha]);
         //return $this->db->lastInsertId();
     }
 

@@ -11,6 +11,8 @@ if (!$_SESSION['iniciarSesion'])
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sistema estacionamiento</title>
+  <link rel="manifest" href="./manifest.json">
+
   <link rel="stylesheet" href="js/lib/boostrap.css">
   <link rel="stylesheet" href="js/lib/awesome.css">
   <link rel="stylesheet" href="js/lib/sweetalert.css" />
@@ -32,7 +34,8 @@ if (!$_SESSION['iniciarSesion'])
           class="d-inline-block align-text-center rounded-circle" />
         SOFT PARKING V.1
       </a>
-      <div>
+      <div class="d-flex gap-3">
+        <P><?php echo $_SESSION['nombre'];  ?></P>
         <a href="app/controladores/logout.php" data-bs-toggle="tooltip"
           data-bs-placement="top"
           data-bs-title="Salir del sistema"
@@ -155,7 +158,7 @@ if (!$_SESSION['iniciarSesion'])
       </button>
 
       <button id="reporte"
-        class="btn btn-light mt-5"
+        class="btn btn-light mt-auto"
         disabled
         data-bs-toggle="tooltip"
         data-bs-placement="top"
@@ -169,34 +172,34 @@ if (!$_SESSION['iniciarSesion'])
         aria-labelledby="v-pills-home-tab"
         tabindex="0">
         <!-- Vista de estacionamiento -->
-        <h4 class="text-center">Estacionamiento</h4>
+        <h4 class="text-center mt-2">Registrar</h4>
 
-        <form class="flex-grow-1 row g-2" id="formEstacionamiento">
-          <div class="col-6">
+        <form class="flex-grow-1 row g-2 p-3" id="formEstacionamiento">
+          <div class="col-md-12 col-lg-6 ">
             <label for="placaE" class="form-label">Placas</label>
             <input type="text" class="form-control" id="placaE" />
           </div>
-          <div class="col-6">
+          <div class="col-md-12 col-lg-6 ">
             <label for="categoria" class="form-label">Categoria</label>
             <select class="form-control" id="categoria"></select>
           </div>
-          <div class="col-6">
+          <div class="col-md-12 col-lg-6 ">
             <label for="marcaE" class="form-label">Marca</label>
             <input type="text" class="form-control" id="marcaE" />
           </div>
-          <div class="col-6">
+          <div class="col-md-12 col-lg-6 ">
             <label for="colorE" class="form-label">Color</label>
             <input type="text" class="form-control" id="colorE" />
           </div>
           <div class="w-auto">
-            <button type="submit" class="btn btn-secondary mt-2">Registrar</button>
+            <button type="submit" class="btn btn-secondary mt-2">Guardar</button>
           </div>
         </form>
         <!-- Mostrando detalles del ticket -->
         <div class="contenedor-tickets flex-grow-1 d-flex gap-2 mt-3">
           <!-- COBRO DE FOLIO ESTACIONAMIENTO -->
           <div class="bloque-uno">
-            <div class="col-6 mx-auto">
+            <div class="col-sm-12 col-md-6  mx-auto">
               <input
                 type="text"
                 class="form-control text-center"
@@ -231,7 +234,7 @@ if (!$_SESSION['iniciarSesion'])
           </div>
           <!-- CONSULTA DE FOLIO ESTACIONAMIENTO -->
           <div class="bloque-dos">
-            <div class="col-6 mx-auto">
+            <div class="col-sm-12 col-md-6  mx-auto">
               <input
                 type="text"
                 class="form-control text-center"
@@ -297,7 +300,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de pension -->
         <form class="row g-3" id="formPension">
-          <h4 class="text-center">Pensión</h4>
+          <h4 class="text-center">Registrar</h4>
           <div class="col-md-6">
             <label for="cliente" class="form-label">Cliente</label>
             <select name="" id="cliente" class="form-control"></select>
@@ -315,7 +318,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="text" class="form-control" id="color" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
         <div class="d-flex justify-content-center mt-5 impresionTicket">
@@ -371,7 +374,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de clientes -->
         <form class="row g-3" id="formClientes">
-          <h4 class="text-center">Cliente</h4>
+          <h4 class="text-center">Registrar</h4>
           <div class="col-md-6">
             <label for="nombreC" class="form-label">Nombre</label>
             <input type="text" class="form-control" id="nombreC" />
@@ -381,7 +384,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="text" class="form-control" id="telefonoC" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
       </div>
@@ -393,7 +396,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de servicios -->
         <form class="row g-3" id="formServicios">
-          <h4 class="text-center">Servicios</h4>
+          <h4 class="text-center">Registrar</h4>
           <div class="col-md-6">
             <label for="servicio" class="form-label">Servicio</label>
             <select id="servicio" class="form-control"></select>
@@ -408,7 +411,7 @@ if (!$_SESSION['iniciarSesion'])
               id="cantidadServicio" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
       </div>
@@ -420,7 +423,7 @@ if (!$_SESSION['iniciarSesion'])
         tabindex="0">
         <!-- Vista de gastos -->
         <form class="row g-3" id="formGastos">
-          <h4 class="text-center">Gastos</h4>
+          <h4 class="text-center">Registrar</h4>
           <div class="col-md-6">
             <label for="concepto" class="form-label">Concepto</label>
             <input type="text" class="form-control" id="concepto" />
@@ -436,7 +439,7 @@ if (!$_SESSION['iniciarSesion'])
               id="cantidadGasto" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
       </div>
@@ -500,7 +503,7 @@ if (!$_SESSION['iniciarSesion'])
               id="maximo" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
         <!-- Precios Pension -->
@@ -515,7 +518,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="number" class="form-control" id="precioPension" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
         <!-- Precios Servicios -->
@@ -530,7 +533,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="number" class="form-control" id="precioServicio" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
       </div>
@@ -559,7 +562,7 @@ if (!$_SESSION['iniciarSesion'])
             <input type="password" class="form-control" id="password" />
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
       </div>
@@ -593,7 +596,7 @@ if (!$_SESSION['iniciarSesion'])
               id="mensajeNegocio"></textarea>
           </div>
           <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Registrar</button>
+            <button type="submit" class="btn btn-secondary">Guardar</button>
           </div>
         </form>
       </div>
